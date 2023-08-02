@@ -4,27 +4,20 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>ml.Scyye</groupId>
-    <artifactId>dmPing</artifactId>
-    <version>6.4.0</version>
+    <groupId>ml.scyye</groupId>
+    <artifactId>dmping</artifactId>
+    <version>5.2.0</version>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
     </properties>
 
-    <repositories>
-        <repository>
-            <id>central</id>
-            <url>https://m2.dv8tion.net/releases</url>
-        </repository>
-    </repositories>
-
     <dependencies>
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>5.0.0-beta.9</version>
+            <version>5.0.0-beta.12</version>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
@@ -32,11 +25,40 @@
             <version>2.7</version>
         </dependency>
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>2.13.4.1</version>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.10.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.kaktushose</groupId>
+            <artifactId>jda-commands</artifactId>
+            <version>4.0.0-alpha.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sedmelluq</groupId>
+            <artifactId>lavaplayer</artifactId>
+            <version>1.3.77</version>
+        </dependency>
+
+        <dependency>
+            <groupId>club.minnced</groupId>
+            <artifactId>discord-webhooks</artifactId>
+            <version>0.8.3</version>
         </dependency>
     </dependencies>
+
+    <repositories>
+        <repository>
+            <id>dv8tion</id>
+            <name>m2-dv8tion</name>
+            <url>https://m2.dv8tion.net/releases</url>
+        </repository>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
 
     <build>
         <plugins>
@@ -48,7 +70,7 @@
                     <createDependencyReducedPom>true</createDependencyReducedPom>
                     <transformers>
                         <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                            <mainClass>ml.Scyye.dmPing.Main</mainClass>
+                            <mainClass>ml.scyye.dmping.Main</mainClass>
                         </transformer>
                     </transformers>
                 </configuration>
