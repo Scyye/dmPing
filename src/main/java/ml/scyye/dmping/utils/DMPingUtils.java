@@ -1,38 +1,28 @@
 package ml.scyye.dmping.utils;
 
-import club.minnced.discord.webhook.WebhookClientBuilder;
-import club.minnced.discord.webhook.external.JDAWebhookClient;
-import club.minnced.discord.webhook.receive.ReadonlyMessage;
-import club.minnced.discord.webhook.send.MessageAttachment;
-import club.minnced.discord.webhook.send.WebhookMessage;
-import club.minnced.discord.webhook.send.WebhookMessageBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.Webhook;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.io.IOUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Predicate;
 
 import static ml.scyye.dmping.Main.instance;
-import static ml.scyye.dmping.utils.APIGetNotNullUtils.ensureGetWebhookByName;
-import static ml.scyye.dmping.utils.LoggingUtils.print;
+import static ml.scyye.dmping.Main.print;
 import static ml.scyye.dmping.utils.MessageUtils.sendTempMessage;
-import static ml.scyye.dmping.utils.MessageUtils.sendTempWebhookMessage;
-import static ml.scyye.dmping.utils.StringUtils.*;
 
 public class DMPingUtils {
-    public static WebhookMessage forwardAttachments(MessageReceivedEvent event, TextChannel channel) {
-        if (event.isWebhookMessage()) return null;
-        if (event.getMessage().getContentRaw().isEmpty() && event.getMessage().getAttachments().isEmpty()) return null;
+    public static void forwardAttachments(MessageReceivedEvent event, TextChannel channel) {
+        if (event.isWebhookMessage()) return;
+        if (event.getMessage().getContentRaw().isEmpty() && event.getMessage().getAttachments().isEmpty()) return;
 
 
         String messageContent = event.getMessage().getContentRaw();
@@ -46,8 +36,8 @@ public class DMPingUtils {
         event.getMessage().getAttachments().toArray(attachments);
 
 
-        return MessageUtils.sendWebhookMessage(channel, event.getMessage().getContentRaw(), new MessageUtils.MessageAuthor(convertToMediaWebhookName(event.getAuthor()),
-                event.getAuthor().getEffectiveAvatarUrl()), attachments).message;
+        MessageUtils.sendWebhookMessage(channel, event.getMessage().getContentRaw(), new MessageUtils.MessageAuthor(event.getAuthor().getEffectiveName(),
+                event.getAuthor().getEffectiveAvatarUrl()), attachments);
     }
 
     public static List<File> getFilesFromAttachments(List<Message.Attachment> attachments) {
@@ -105,21 +95,30 @@ public class DMPingUtils {
                 "Channel Name: " + event.getChannel().getName(),
                 "Author Name: " + event.getAuthor().getName(),
                 "Author ID: " + event.getAuthor().getId(),
-                "MESSAGE CONTENT: " + event.getMessage().getContentRaw(),
+                "MESSAGE CONTENT: " + (!event.getMessage().getContentRaw().isEmpty()?event.getMessage().getContentRaw():event.getMessage().getAttachments().size()+" attachments"),
 
                 // Adds spaces in the logs for formatting and readability purposes
                 "",
-                line(120, "="),
+                "=".repeat(120),
                 ""
         );
     }
 
-    public static Constants.MentionUsers mentionUsers(MessageReceivedEvent event) {
+    public static Constants.MentionUsers mentionUsers(MessageReceivedEvent event, @Nullable Predicate<Member> predicate) {
         Message message = event.getMessage();
 
         if (event.getAuthor().isBot()) return new Constants.MentionUsers("", "");
 
-        List<Member> ping = new ArrayList<>(event.getGuild().getMembers());
+        List<Member> ping = new ArrayList<>();
+
+        for (Member member : event.getGuild().getMembers()) {
+            if (predicate==null) {
+                ping.addAll(event.getGuild().getMembers());
+                break;
+            }
+            if (predicate.test(member))
+                ping.add(member);
+        }
 
         for (Member member : event.getGuild().getMembers()) {
             if (message.getContentRaw().contains(member.getUser().getName()) || message.getMentions().getMembers().contains(member)) {
@@ -165,4 +164,9 @@ public class DMPingUtils {
 
         return new Constants.MentionUsers(pingNamesBuilder.toString(), pingStringBuilder.toString());
     }
+
+    private static String replacePingWithName(String s) {
+        return instance.jda.getUserById(s.replace("<", "").replace("@", "").replace(">", "")).getName();
+    }
+
 }

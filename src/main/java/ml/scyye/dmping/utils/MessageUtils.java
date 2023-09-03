@@ -42,18 +42,6 @@ public class MessageUtils {
     }
 
     /**
-     * Use sendTempMessage or sendWebhookMessage instead
-     * @param channel
-     * @param message
-     * @param author
-     */
-    @Deprecated(since = "5.3.0", forRemoval = true)
-    public static void sendTempWebhookMessage(TextChannel channel, String message, MessageAuthor author) {
-        var webhookReturn = sendWebhookMessage(channel, message, author);
-        webhookReturn.client.delete(webhookReturn.id);
-    }
-
-    /**
      * NO PARAMETER CAN BE NULL, THEY CAN BE EMPTY, BUT NOT NULL.
      * @param channel The channel to send the message to
      * @param message The message content (can be empty)

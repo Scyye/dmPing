@@ -10,19 +10,23 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 public class APIGetNotNullUtils {
-    public static Role ensureGetRole(@NotNull Guild guild, String roleName, boolean ignoreCase) {
+    public static Role ensureGetRoleByName(@NotNull Guild guild, String roleName, boolean ignoreCase) {
         var roles = guild.getRolesByName(roleName, ignoreCase);
         if (!roles.isEmpty()) return roles.get(0);
         return guild.createRole().setName(roleName).complete();
     }
 
-    public static TextChannel ensureGetChannel(@NotNull Guild guild, String channelName, boolean ignoreCase) {
+    public static TextChannel ensureGetChannelByName(@NotNull Guild guild, String channelName) {
+        return ensureGetChannelByName(guild, channelName, true);
+    }
+
+    public static TextChannel ensureGetChannelByName(@NotNull Guild guild, String channelName, boolean ignoreCase) {
         return guild.getTextChannelsByName(channelName, ignoreCase).isEmpty()
                 ? guild.createTextChannel(channelName).complete() :
                 guild.getTextChannelsByName(channelName, ignoreCase).get(0);
     }
 
-    public static TextChannel ensureGetChannel(@NotNull Guild guild, String channelName, String category, boolean ignoreCase) {
+    public static TextChannel ensureGetChannelByName(@NotNull Guild guild, String channelName, String category, boolean ignoreCase) {
         List<TextChannel> channels = guild.getTextChannelsByName(channelName, ignoreCase);
         List<Category> categories = guild.getCategoriesByName(category, ignoreCase);
         if (!channels.isEmpty() && !categories.isEmpty()) return channels.get(0);

@@ -1,34 +1,27 @@
 package ml.scyye.dmping.listeners;
 
+import ml.scyye.database.SQLiteUtils;
 import ml.scyye.dmping.Main;
-import ml.scyye.dmping.utils.Constants;
 import ml.scyye.dmping.utils.MessageUtils;
-import ml.scyye.dmping.utils.S5AListener;
+import ml.scyye.dmping.utils.S2AListener;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.MessageUpdateEvent;
 import org.jetbrains.annotations.NotNull;
 
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 import java.util.LinkedList;
 import java.util.List;
 
 import static ml.scyye.dmping.Main.CACHE;
-import static ml.scyye.dmping.utils.APIGetNotNullUtils.ensureGetChannel;
-import static ml.scyye.dmping.utils.Constants.*;
-import static ml.scyye.dmping.utils.MessageUtils.sendPrivateMessage;
+import static ml.scyye.dmping.utils.Constants.Scyye;
 
-public class Antidelete extends S5AListener {
+public class Antidelete extends S2AListener {
 
-
-    static class CachedMessage {
+    public static class CachedMessage {
         public String  messageId;
         public String  authorId;
         public String  content;
@@ -45,50 +38,34 @@ public class Antidelete extends S5AListener {
     @Override
     public void onMessageDelete(@NotNull MessageDeleteEvent event) {
         if (!CACHE || event.getChannelType() != ChannelType.TEXT || event.getChannelType() == ChannelType.PRIVATE) return;
-        String messageId = event.getMessageId();
         CacheManager manager = Main.instance.cacheManager;
 
-        if (manager.sentByBot.contains(messageId)) return;
-
         CachedMessage cachedMessage = manager.findMessageById(event.getMessageId());
+        if (cachedMessage.authorId==null)
+            return;
         if (cachedMessage.authorId.isEmpty())
             return;
 
-        @NotNull
-        var member = event.getGuild().retrieveMemberById(cachedMessage.authorId).complete();
+        Member member = event.getGuild().retrieveMemberById(cachedMessage.authorId).complete();
 
-        MessageUtils.sendWebhookMessage(event.getChannel().asTextChannel(), cachedMessage.content.replace('␂', ','),
+        MessageUtils.sendWebhookMessage(event.getChannel().asTextChannel(), cachedMessage.content,
                 new MessageUtils.MessageAuthor(member.getEffectiveName()+" (Deleted Message)", member.getEffectiveAvatarUrl()));
     }
 
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
-        if (!CACHE || blacklist.contains(event.getAuthor().getId())||!event.getChannel().getName().equalsIgnoreCase("general")) return;
+        if (!CACHE || Main.config.getBlacklist().contains(event.getAuthor().getId())) return;
 
-        CacheManager manager = Main.instance.cacheManager;
         if (event.getAuthor().isBot()) {
-            manager.sentByBot.add(event.getMessageId());
             return;
         }
 
-        TextChannel cacheChannel = ensureGetChannel(event.getGuild(), "caching", true);
 
+        if (event.getMessage().getContentRaw().equals("")) return;
+        SQLiteUtils.insertEntry(event.getMessageId(), event.getAuthor().getId(), event.getMessage().getContentRaw());
+        // cacheChannel.sendMessage(event.getMessageId() + "," + event.getAuthor().getId() + "," + content).queue();
 
-        String content = event.getMessage().getContentRaw();
-        if (content.equals("")) return;
-        content= content.replace(",", "␂");
-        cacheChannel.sendMessage(event.getMessageId() + "," + event.getAuthor().getId() + "," + content).queue();
-
-
-        manager.cachedMessages.add(new CachedMessage(event.getMessageId(), event.getAuthor().getId(), event.getMessage().getContentRaw()));
-    }
-
-    public static void clearOldCache() {
-        for (var message : Sub5Allts.cachingChannel.getHistory().getRetrievedHistory()) {
-            if (message.getTimeCreated().isBefore(OffsetDateTime.of(LocalDateTime.now().minusDays(7), ZoneOffset.of("EST")))) {
-                message.delete().queue();
-            }
-        }
+        Main.instance.cacheManager.cachedMessages.add(new CachedMessage(event.getMessageId(), event.getAuthor().getId(), event.getMessage().getContentRaw()));
     }
 
     @Override
@@ -114,17 +91,10 @@ public class Antidelete extends S5AListener {
     }
 
     public static class CacheManager {
-        public List<String> sentByBot = new LinkedList<>();
         public List<CachedMessage> cachedMessages = new LinkedList<>();
 
         public CacheManager() {
-            this.initCacheList();
-        }
-
-        public void initCacheList() {
-            for (Message message : Sub5Allts.cachingChannel.getIterableHistory()) {
-                cachedMessages.add(new CachedMessage(message.getId(), message.getAuthor().getId(), message.getContentRaw()));
-            }
+            cachedMessages.addAll(SQLiteUtils.findAllCachedMessages());
         }
 
         private CachedMessage findMessageById(String id) {
