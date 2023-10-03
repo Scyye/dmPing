@@ -5,7 +5,6 @@ import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
-import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
@@ -63,7 +62,6 @@ public class DMPingUtils {
     }
 
     public static void logMessage(MessageReceivedEvent event, String pingString, String pingNames) {
-        if (instance.dmLink) return;
         print(
                 pingString.replace("<", "").replace(">", "").replace("@", ""),
                 // Logs the members' Names that it pinged
