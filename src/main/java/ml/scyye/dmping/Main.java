@@ -38,7 +38,8 @@ public class Main {
 				.addEventListeners(
 						new DMPing(),
 						new Sub5AlltsOnlyListener(),
-						new VcJoinListener()
+						new VcJoinListener(),
+						new Antidelete()
 				)
 				.build()
 				.awaitReady();
