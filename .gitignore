@@ -28,3 +28,4 @@ out/
 target/
 .idea/
 dmping-assets/temp/audio-1696210918656.wav
+*.wav
