@@ -1,6 +1,5 @@
 package ml.scyye.dmping.listeners;
 
-import ml.scyye.dmping.utils.Constants;
 import ml.scyye.dmping.utils.S2AListener;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;

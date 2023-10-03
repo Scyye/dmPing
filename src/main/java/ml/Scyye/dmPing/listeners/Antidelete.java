@@ -1,100 +1,85 @@
-package ml.Scyye.dmPing.listeners;
+package ml.scyye.dmping.listeners;
 
-import ml.Scyye.dmPing.Main;
-import ml.Scyye.dmPing.ScyyeThings;
+import ml.scyye.database.SQLiteUtils;
+import ml.scyye.dmping.Main;
+import ml.scyye.dmping.utils.MessageUtils;
+import ml.scyye.dmping.utils.S2AListener;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.MessageUpdateEvent;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
 
-import static ml.Scyye.dmPing.ScyyeThings.*;
+import static ml.scyye.dmping.Main.CACHE;
+import static ml.scyye.dmping.utils.Constants.Scyye;
 
-public class Antidelete extends ListenerAdapter {
+public class Antidelete extends S2AListener {
 
-    HashMap<String, CacheManager> cacheMap = new HashMap<>();
-
-
-
-    static class CachedMessage {
-        public String  content;
-        public String  id;
+    public static class CachedMessage {
+        public String  messageId;
         public String  authorId;
+        public String  content;
 
-        public CachedMessage(String id, String authorId, String content) {
-            this.content = content;
-            this.id = id;
+        public CachedMessage(String messageId, String authorId, String content) {
+            this.messageId=messageId;
             this.authorId = authorId;
+            this.content = content;
         }
+
+        public CachedMessage() {}
     }
 
     @Override
     public void onMessageDelete(@NotNull MessageDeleteEvent event) {
-        if (!cache) return;
-        String messageId = event.getMessageId();
-        if (event.getChannelType() == ChannelType.PRIVATE) return;
-        CacheManager manager = cacheMap.get(event.getGuild().getId());
+        if (!CACHE || event.getChannelType() != ChannelType.TEXT || event.getChannelType() == ChannelType.PRIVATE) return;
+        CacheManager manager = Main.instance.cacheManager;
 
-        TextChannel cacheChannel = ScyyeThings.ensureGetChannel(event.getGuild(), "caching", true);
-        if (event.getChannelType() == ChannelType.GUILD_PUBLIC_THREAD) return;
-        if (manager.sentByBot.contains(messageId)) return;
+        CachedMessage cachedMessage = manager.findMessageById(event.getMessageId());
+        if (cachedMessage.authorId==null)
+            return;
+        if (cachedMessage.authorId.isEmpty())
+            return;
 
-        for (Message message : cacheChannel.getIterableHistory().complete()) {
-            String[] data = message.getContentRaw().split(",");
-            if (data.length < 2) return;
-            String iterableId = data[0];
-            String authorId = data[1];
-            String content = data[2].replace("␂", ",");
+        Member member = event.getGuild().retrieveMemberById(cachedMessage.authorId).complete();
 
-
-            if (!messageId.equalsIgnoreCase(iterableId)) continue;
-
-            event.getChannel().sendMessage("**Deleted Message!**\n" + Objects.requireNonNull(event.getGuild().getMemberById(authorId)).getUser().getAsTag()+": " + content).queue();
-        }
+        MessageUtils.sendWebhookMessage(event.getChannel().asTextChannel(), cachedMessage.content,
+                new MessageUtils.MessageAuthor(member.getEffectiveName()+" (Deleted Message)", member.getEffectiveAvatarUrl()));
     }
 
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
-        if (!cache) return;
-        if (blacklist.contains(event.getAuthor().getId())) return;
-        if (event.getChannelType()==ChannelType.PRIVATE) return;
-        CacheManager manager = cacheMap.get(event.getGuild().getId());
-
-        TextChannel cacheChannel = ensureGetChannel(event.getGuild(), "caching", true);
+        if (!CACHE || Main.config.getBlacklist().contains(event.getAuthor().getId())) return;
 
         if (event.getAuthor().isBot()) {
-            manager.sentByBot.add(event.getMessageId());
             return;
         }
-        String content = event.getMessage().getContentRaw();
-        if (content.equals("")) return;
-        content= content.replace(",", "␂");
-        cacheChannel.sendMessage(event.getMessageId() + "," + event.getAuthor().getId() + "," + content).queue();
 
 
-        manager.cachedMessages.add(new CachedMessage(event.getMessageId(), event.getAuthor().getId(), content));
+        if (event.getMessage().getContentRaw().equals("")) return;
+        SQLiteUtils.insertEntry(event.getMessageId(), event.getAuthor().getId(), event.getMessage().getContentRaw());
+        // cacheChannel.sendMessage(event.getMessageId() + "," + event.getAuthor().getId() + "," + content).queue();
+
+        Main.instance.cacheManager.cachedMessages.add(new CachedMessage(event.getMessageId(), event.getAuthor().getId(), event.getMessage().getContentRaw()));
     }
 
     @Override
     public void onMessageUpdate(MessageUpdateEvent event) {
         if (event.getChannelType()==ChannelType.PRIVATE) return;
-        CacheManager manager = new CacheManager(event.getGuild());
+        if (!event.getMessage().isEdited()) return;
+        CacheManager manager = Main.instance.cacheManager;
         EmbedBuilder builder= new EmbedBuilder();
         String originalContent = manager.findMessageById(event.getMessageId()).content;
         String newContent = event.getMessage().getContentRaw();
         User author = Main.instance.jda.getUserById(event.getAuthor().getId());
 
         assert author != null;
-        builder.setAuthor(author.getAsTag())
+        builder.setAuthor(author.getEffectiveName())
                 .setThumbnail(author.getAvatarUrl())
                 .setColor(1)
                 .addField("Original Content:", "```txt\n"+originalContent+"\n```", false)
@@ -102,41 +87,21 @@ public class Antidelete extends ListenerAdapter {
                 .appendDescription(event.getJumpUrl())
                 ;
 
-        ScyyeThings.sendMessage(Scyye.user, builder.build());
+        MessageUtils.sendPrivateMessage(Scyye.user, builder.build());
     }
 
-    @Override
-    public void onGuildReady(GuildReadyEvent event) {
-        cacheMap.put(event.getGuild().getId(), new CacheManager(event.getGuild()));
-    }
-
-    private static class CacheManager {
-        Guild guild;
-
-        public List<String> sentByBot = new LinkedList<>();
+    public static class CacheManager {
         public List<CachedMessage> cachedMessages = new LinkedList<>();
 
-        public CacheManager(Guild guild) {
-            this.guild=guild;
-            this.initCacheList();
-        }
-
-        public void initCacheList() {
-            for (Message message : ensureGetChannel(this.guild, "caching", true).getIterableHistory()) {
-                if (message.getContentRaw().split(",").length < 3) continue;
-                cachedMessages.add(new CachedMessage(
-                        message.getContentRaw().split(",")[0],
-                        message.getContentRaw().split(",")[1],
-                        message.getContentRaw().split(",")[2]
-                ));
-            }
+        public CacheManager() {
+            cachedMessages.addAll(SQLiteUtils.findAllCachedMessages());
         }
 
         private CachedMessage findMessageById(String id) {
-            for (CachedMessage message : cachedMessages) {
-                if (message.id.equalsIgnoreCase(id)) return message;
+            for (CachedMessage cachedMessage : cachedMessages) {
+                if (cachedMessage.messageId.equalsIgnoreCase(id)) return cachedMessage;
             }
-            return new CachedMessage("","", "");
+            return new CachedMessage();
         }
 
     }

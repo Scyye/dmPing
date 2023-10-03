@@ -1,51 +1,46 @@
-package ml.Scyye.dmPing.listeners;
+package ml.scyye.dmping.listeners;
 
-import ml.Scyye.dmPing.ScyyeThings;
-import net.dv8tion.jda.api.entities.*;
+import ml.scyye.dmping.Main;
+import ml.scyye.dmping.utils.S2AListener;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
-import static ml.Scyye.dmPing.ScyyeThings.*;
+import java.util.ArrayList;
+import java.util.List;
 
-public class dmPing extends ListenerAdapter {
+import static ml.scyye.dmping.Main.config;
+import static ml.scyye.dmping.utils.APIGetNotNullUtils.*;
+import static ml.scyye.dmping.utils.Constants.*;
+import static ml.scyye.dmping.utils.DMPingUtils.*;
 
-    /*
-    THINGS I WANT TO ADD:
-    1: VC Text chat that dmPing only pings people in the vc
-     */
-
+public class DMPing extends S2AListener {
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
-        if (event.getChannelType() == ChannelType.PRIVATE) return;
-        if (ScyyeThings.blacklist.contains(event.getMember().getId())) {
-            logMessage(event, "", "");
-            event.getMessage().delete().complete();
+        if (config.getBlacklist().contains(event.getAuthor().getId())) {
+            event.getMessage().delete().queue();
+            logMessage(event, "**USER IS BLACKLISTED**", "**USER IS BLACKLISTED**");
+        }
+        if (event.getChannelType()==ChannelType.VOICE) {
+            VoicePingManager.instance.handle(event);
             return;
         }
-        if (event.getChannelType().equals(ChannelType.VOICE)) return;
-        if (event.getChannelType() == ChannelType.GUILD_PUBLIC_THREAD) return;
-        if (event.getChannel().asTextChannel().getName().equalsIgnoreCase("media")) {
-            TextChannel textChannel = ScyyeThings.ensureGetChannel(event.getGuild(), "general", "General Channels", true);
-            if (event.getMessage().getAttachments().isEmpty()) event.getMessage().delete().complete();
-
-            ScyyeThings.mentionProperUsers(new MessageReceivedEvent(event.getJDA(), 0L, ScyyeThings.forwardAttachments(event, textChannel)));
+        if (event.getAuthor().isBot()  || Main.config.getBlacklist().contains(event.getAuthor().getId())) {
+            return;
         }
 
+        if (!event.getMessage().getAttachments().isEmpty()) {
+            forwardAttachments(event, ensureGetChannelByName(event.getGuild(), "media-stuff"));
+            return;
+        }
 
-        // Variables
-        User AUTHOR = event.getAuthor();
-
-        // If dmPing sent the message, it does nothing.
-        if (AUTHOR.isBot()) return;
-
-        // Adds all the members that werent already pinged in the message to an ArrayList
-        MentionUsers mentionUsers = ScyyeThings.mentionProperUsers(event);
+        // Gets all users it should mention
+        MentionUsers mentionUsers = mentionUsers(event, null);
 
         // Logs everything
-        ScyyeThings.logMessage(event, mentionUsers.getPingst(), mentionUsers.getPingtags());
+        logMessage(event, mentionUsers.getPingString(), mentionUsers.getPingNames());
     }
 }
 

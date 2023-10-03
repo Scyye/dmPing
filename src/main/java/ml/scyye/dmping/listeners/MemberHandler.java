@@ -1,12 +1,8 @@
 package ml.scyye.dmping.listeners;
 
-import ml.scyye.dmping.utils.Constants;
 import ml.scyye.dmping.utils.S5AListener;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
-
-import static ml.scyye.dmping.utils.LoggingUtils.printStartup;
 
 public class MemberHandler extends S5AListener {
 

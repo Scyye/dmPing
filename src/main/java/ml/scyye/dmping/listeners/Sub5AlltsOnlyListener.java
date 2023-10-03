@@ -2,8 +2,6 @@ package ml.scyye.dmping.listeners;
 
 import ml.scyye.dmping.Main;
 import ml.scyye.dmping.commands.music.PlayerManager;
-import ml.scyye.dmping.utils.Config;
-import ml.scyye.dmping.utils.Constants;
 import ml.scyye.dmping.utils.S2AListener;
 import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
 

@@ -1,69 +1,117 @@
-package ml.Scyye.dmPing;
+package ml.scyye.dmping;
 
-import ml.Scyye.dmPing.listeners.*;
-import ml.Scyye.dmPing.commands.CommandManager;
+import com.github.kaktushose.jda.commands.JDACommands;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import ml.scyye.dmping.commands.CommandManager;
+import ml.scyye.dmping.listeners.*;
+import ml.scyye.dmping.utils.Config;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
-import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.managers.AudioManager;
 import net.dv8tion.jda.api.requests.GatewayIntent;
-import net.dv8tion.jda.api.utils.*;
+import net.dv8tion.jda.api.utils.ChunkingFilter;
+import net.dv8tion.jda.api.utils.MemberCachePolicy;
+import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
-import java.util.*;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.UUID;
 
-import static ml.Scyye.dmPing.ScyyeThings.*;
-
-public class Main extends ListenerAdapter {
+public class Main {
 
     public static Main instance;
 
     public JDA jda;
 
     public UUID cacheClearCode;
+    public boolean dmLink;
 
-    public UUID randomizeCacheCode() {
+    public void randomizeCacheCode() {
         cacheClearCode=UUID.randomUUID();
-        return cacheClearCode;
     }
 
-    public AudioManager audioManager;
+    public Antidelete.CacheManager cacheManager;
 
-    public Main() {
-        jda = JDABuilder.createLight(TOKEN)
+
+    public static boolean CACHE = true;
+
+    public static Config config;
+
+    private Main()  {
+        jda = JDABuilder.createDefault(config.getToken())
                 .setStatus(OnlineStatus.ONLINE)
-                .setActivity(Activity.listening("your DMs"))
+                .setActivity(Activity.of(Activity.ActivityType.PLAYING, "dmPing V"+config.getVersion()+(config.isBeta()?"-b":"")))
                 .setMemberCachePolicy(MemberCachePolicy.ALL)
+                .enableCache(Arrays.stream(CacheFlag.values()).toList())
                 .setChunkingFilter(ChunkingFilter.ALL)
-                .enableIntents(GatewayIntent.getIntents(GatewayIntent.ALL_INTENTS))
+                .enableIntents(Arrays.stream(GatewayIntent.values()).toList())
                 .addEventListeners(
-                        new dmPing(),
-                        new CommandManager(),
-                        new MemberHandler(),
+                        new DMPing(),
                         new Antidelete(),
-                        new PrivateMessageHandler(),
-                        this
+                        // TODO: Remove
+                        new AntiJustin(),
+                        VoicePingManager.instance,
+                        new Sub5AlltsOnlyListener()
                 )
                 .build();
-
-
-        cacheClearCode = UUID.randomUUID();
     }
 
     public static void main(String[] args) {
-        instance = new Main();
-        Timer timer = new Timer();
-        TimerTask task = new Deleter();
-
-        timer.schedule(task, 5000, 100);  // 2000 - delay (can set to 0 for immediate execution), 5000 is a frequency.
+        loadConfig();
+        instance=new Main();
     }
 
-    @Override
-    public void onGuildReady(GuildReadyEvent event) {
-        if (!event.getGuild().equals(Sub5Allts.guild)) return;
-        audioManager = ScyyeThings.Sub5Allts.guild.getAudioManager();
-        audioManager.openAudioConnection(ScyyeThings.Sub5Allts.guild.getVoiceChannelById(1057178334766841856L));
+    static void loadConfig() {
+        final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        final Path configFilePath = Path.of("src","main", "resources", "config.json");
+
+        final File configFile = configFilePath.toFile();
+        try {
+            if (!configFile.exists()) {
+                if (!configFile.createNewFile())
+                    loadConfig();
+                Files.writeString(configFilePath, gson.toJson(Config.defaultConfig(), Config.class));
+            }
+            config = gson.fromJson(Files.readString(configFilePath), Config.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
+
+    public static void postInit() {
+        String commandsPackage = CommandManager.class.getPackageName();;
+        try {
+            Main.instance.randomizeCacheCode();
+            Main.instance.dmLink=false;
+            if (!JDACommands.isActive()) {
+                print("Enabling commands in " + commandsPackage);
+                JDACommands.start(instance.jda, instance.getClass(), commandsPackage, commandsPackage+".music");
+                print("Enabled commands in " + commandsPackage);
+            }
+
+            Main.instance.cacheManager=new Antidelete.CacheManager();
+
+            Main.instance.jda.getGuilds().get(0).getSelfMember().modifyNickname("dmPing"+(config.isBeta()?" V"+config.getVersion()+"-beta":"")).queue();
+        } catch (IllegalArgumentException e) {
+            try {
+                Thread.sleep(2000);
+                System.out.println("Waiting 2 seconds");
+            } catch (Exception er) {
+                er.printStackTrace();
+            }
+            postInit();
+        }
+    }
+
+    public static void print(String... strings) {
+        for (String st : strings) {
+            System.out.println(st);
+        }
+    }
+
 }
