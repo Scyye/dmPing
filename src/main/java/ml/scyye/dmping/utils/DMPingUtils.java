@@ -1,22 +1,18 @@
 package ml.scyye.dmping.utils;
 
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
+import ml.scyye.dmping.listeners.DMPing;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.*;
+import java.util.*;
 import java.util.function.Predicate;
 
-import static ml.scyye.dmping.Main.instance;
-import static ml.scyye.dmping.Main.print;
+import static ml.scyye.dmping.Main.*;
 import static ml.scyye.dmping.utils.MessageUtils.sendTempMessage;
 
 public class DMPingUtils {
@@ -24,19 +20,10 @@ public class DMPingUtils {
         if (event.isWebhookMessage()) return;
         if (event.getMessage().getContentRaw().isEmpty() && event.getMessage().getAttachments().isEmpty()) return;
 
-
-        String messageContent = event.getMessage().getContentRaw();
-        for (var word : messageContent.split(" ")) {
-            if (word.startsWith("<@")) {
-                messageContent = messageContent.replace(word, replacePingWithName(word));
-            }
-        }
-
         Message.Attachment[] attachments = new Message.Attachment[event.getMessage().getAttachments().size()];
         event.getMessage().getAttachments().toArray(attachments);
 
-
-        MessageUtils.sendWebhookMessage(channel, event.getMessage().getContentRaw(), new MessageUtils.MessageAuthor(event.getAuthor().getEffectiveName(),
+        MessageUtils.sendWebhookMessage(channel, event.getMessageId(), new MessageUtils.MessageAuthor(event.getAuthor().getEffectiveName(),
                 event.getAuthor().getEffectiveAvatarUrl()), attachments);
     }
 
@@ -104,10 +91,10 @@ public class DMPingUtils {
         );
     }
 
-    public static Constants.MentionUsers mentionUsers(MessageReceivedEvent event, @Nullable Predicate<Member> predicate) {
+    public static DMPing.MentionUsers mentionUsers(MessageReceivedEvent event, @Nullable Predicate<Member> predicate) {
         Message message = event.getMessage();
 
-        if (event.getAuthor().isBot()) return new Constants.MentionUsers("", "");
+        if (event.getAuthor().isBot()) return new DMPing.MentionUsers("", "");
 
         List<Member> ping = new ArrayList<>();
 
@@ -127,7 +114,7 @@ public class DMPingUtils {
         }
 
         if (message.getContentRaw().contains("@everyone")) {
-            return new Constants.MentionUsers("", "");
+            return new DMPing.MentionUsers("", "");
         }
 
         // Removes the message sender from the ArrayList
@@ -137,7 +124,7 @@ public class DMPingUtils {
         ping.remove(message.getGuild().getMemberById(instance.jda.getSelfUser().getId()));
 
         // If there's no one to ping, it does nothing
-        if (ping.isEmpty()) return new Constants.MentionUsers("", "");
+        if (ping.isEmpty()) return new DMPing.MentionUsers("", "");
 
         StringBuilder pingStringBuilder = new StringBuilder();
         StringBuilder pingNamesBuilder = new StringBuilder();
@@ -152,21 +139,14 @@ public class DMPingUtils {
             pingNamesBuilder.append(member.getEffectiveName()).append(" | ");
         }
 
-        String messageContent = event.getMessage().getContentRaw();
-        for (String word : messageContent.split(" ")) {
-            if (word.startsWith("<@")) {
-                messageContent = messageContent.replace(word, replacePingWithName(word));
-            }
-        }
+        String messageContent = event.getMessage().getContentDisplay();
 
         // Pings the members that it should
-        sendTempMessage(event.getChannel().asTextChannel(), messageContent+"\n\n"+pingStringBuilder, 0);
+        sendTempMessage(event.getChannel(),
+                MessageCreateData.fromContent(messageContent + "\n" + pingStringBuilder),
+                0);
 
-        return new Constants.MentionUsers(pingNamesBuilder.toString(), pingStringBuilder.toString());
-    }
-
-    private static String replacePingWithName(String s) {
-        return instance.jda.getUserById(s.replace("<", "").replace("@", "").replace(">", "")).getName();
+        return new DMPing.MentionUsers(pingNamesBuilder.toString(), pingStringBuilder.toString());
     }
 
 }

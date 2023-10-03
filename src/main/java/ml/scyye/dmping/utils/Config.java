@@ -1,35 +1,35 @@
 package ml.scyye.dmping.utils;
 
 import lombok.Getter;
-
-import javax.swing.text.Style;
-import java.util.ArrayList;
-import java.util.List;
+import lombok.Setter;
 
 public class Config {
     @Getter
-    private String token;
+    private final String token;
     @Getter
-    private String uniToken;
+    @Deprecated(since = "5.4.1", forRemoval = true)
+    private final String uniToken;
     @Getter
-    private String guildId;
+    private final String guildId;
     @Getter
-    private String ownerId;
+    private final String ownerId;
 
     @Getter
-    private String version;
+    private final String version;
     @Getter
-    private boolean beta;
+    private final boolean beta;
     @Getter
-    private boolean devMode;
+    private final boolean devMode;
 
     @Getter
-    private List<String> blacklist;
+    @Setter
+    private String[] blacklist;
 
-    private Config(String token, String uniToken, String guildId, String version, boolean beta, boolean devMode, List<String> blacklist) {
+    private Config(String token, String uniToken, String guildId, String ownerId, String version, boolean beta, boolean devMode, String... blacklist) {
         this.token = token;
         this.uniToken = uniToken;
         this.guildId = guildId;
+        this.ownerId=ownerId;
         this.version = version;
         this.beta = beta;
         this.devMode = devMode;
@@ -41,10 +41,10 @@ public class Config {
                 "MTExMjc1ODMyNDQxMzM0NTgwMg.G4y60_.bi1veaufhLhpBvl0iA2sfOylzAM01CeWa2htsE",
                 "MTEwNDQzMjk3OTk2ODgwNjk4Mw.Gzms4p.1vcaFxiJHwTKx8S1ARDIthzl62SvDdGi6JpEbM",
                 "1139672380109762630",
+                "553652308295155723",
                 "0.0.0",
                 false,
-                false,
-                new ArrayList<>()
+                false
         );
     }
 }
