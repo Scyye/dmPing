@@ -25,17 +25,17 @@ public class TextToSpeechUtil {
 		player.close();
 		voice.deallocate();
 
-		PlayerManager.instance.loadAndPlay(Main.instance.jda.getGuildById(Main.config.getGuildId()), "dmping-assets/temp/audio-"+m+".wav");
+		PlayerManager.instance.loadAndPlay(Main.instance.jda.getGuildById(Main.config.get("guildId", String.class)), "dmping-assets/temp/audio-"+m+".wav");
 	}
 
 	// TODO: Automatically translate to auto-ignore case regex
 	public static String correctPronunciation(String message) {
-		return message.replaceAll("[S-s][C-c][Y-y][Y-y][E-e]", "sigh")
+		return message.replaceAll("scyye", "sigh")
 				.replaceAll("\\.\\.\\.", "dot dot dot")
-				.replaceAll("[B-b][R-r][B-b]", "be right back")
-				.replaceAll("[G-g][T-t][G-g]", "got to go")
+				.replaceAll("brb", "be right back")
+				.replaceAll("gtg", "got to go")
 				// replace all instances of "fn" with a space on either side with "fortnite"
-				.replaceAll("[F-f][N-n] ", "fort night")
-				.replaceAll("[F-f][N-n][F-f]", "a really fucking shitty game with some blue haired emo");
+				.replaceAll("fn ", "fort night")
+				.replaceAll("fnf", "a really fucking shitty game with some blue haired emo");
 	}
 }

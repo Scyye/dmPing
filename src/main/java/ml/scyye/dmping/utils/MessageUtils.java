@@ -4,12 +4,12 @@ import club.minnced.discord.webhook.WebhookClientBuilder;
 import club.minnced.discord.webhook.external.JDAWebhookClient;
 import club.minnced.discord.webhook.receive.ReadonlyMessage;
 import club.minnced.discord.webhook.send.WebhookMessageBuilder;
+import lombok.NonNull;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -17,20 +17,16 @@ import static ml.scyye.dmping.utils.APIGetNotNullUtils.ensureGetWebhookByName;
 import static ml.scyye.dmping.utils.DMPingUtils.getFilesFromAttachments;
 
 public class MessageUtils {
-    // TODO: Remove, unused
-    @Deprecated(since = "5.4.3", forRemoval = true)
-    public static Message sendPrivateMessage(User user, String content) {
-        return user.openPrivateChannel()
+    public static void sendPrivateMessage(User user, String content) {
+        user.openPrivateChannel()
                 .flatMap(channel -> channel.sendMessage(content))
-                .complete();
+                .queue();
     }
 
-    // TODO: Remove, unused
-    @Deprecated(since = "5.4.3", forRemoval = true)
     public static void sendPrivateMessage(User user, MessageEmbed content) {
         user.openPrivateChannel()
                 .flatMap(channel -> channel.sendMessageEmbeds(content))
-                .complete();
+                .queue();
     }
 
     public static void sendTempMessage(MessageChannel channel, MessageCreateData data, long delay) {
@@ -38,16 +34,17 @@ public class MessageUtils {
     }
 
     /**
-     * NO PARAMETER CAN BE NULL, THEY CAN BE EMPTY, BUT NOT NULL.
-     *
      * @param channel     The channel to send the message to
      * @param message     The message content (can be empty)
      * @param author      The webhook's username (can be any String)
      * @param attachments A list of attachments to add to the message (can be empty as long as "message" is provided)
      */
 
-    @ParametersAreNonnullByDefault
-    public static void sendWebhookMessage(TextChannel channel, String message, MessageAuthor author, Message.Attachment... attachments) {
+    public static void sendWebhookMessage(@NonNull TextChannel channel, String message, MessageAuthor author, Message.Attachment... attachments) {
+        if (message==null) message="";
+        if (author==null) author=new MessageAuthor("","");
+        if (attachments==null) attachments=new Message.Attachment[0];
+
         List<Message.Attachment> attachmentList = List.of(attachments);
         Webhook webhook = ensureGetWebhookByName(channel, author.name);
 

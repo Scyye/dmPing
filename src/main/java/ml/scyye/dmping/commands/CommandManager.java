@@ -1,27 +1,19 @@
 package ml.scyye.dmping.commands;
 
-import com.github.kaktushose.jda.commands.annotations.interactions.Interaction;
-import com.github.kaktushose.jda.commands.annotations.interactions.Param;
-import com.github.kaktushose.jda.commands.annotations.interactions.SlashCommand;
+import com.github.kaktushose.jda.commands.annotations.interactions.*;
 import com.github.kaktushose.jda.commands.dispatching.commands.CommandEvent;
 import ml.scyye.dmping.Main;
-import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.OnlineStatus;
+import net.dv8tion.jda.api.*;
 
 import java.awt.*;
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-
-import static ml.scyye.dmping.utils.Constants.*;
-import static ml.scyye.dmping.Main.print;
+import java.io.*;
 
 @Interaction
 public class CommandManager {
 
 	@SlashCommand(value = "shutdown", desc = "Shuts the bot down.", ephemeral = true)
 	public void onShutdown(CommandEvent event) {
-		if (!event.getUser().getId().equals(Main.config.getOwnerId())){
+		if (!event.getUser().getId().equals(Main.config.get("ownerId", String.class))) {
 			event.reply("You can't do that!");
 			System.out.println(event.getUser().getEffectiveName()+ " Attempted to shutdown the bot, but wasn't cool enough!");
 			return;
@@ -48,7 +40,7 @@ public class CommandManager {
 
 	@SlashCommand(value = "version", desc = "Tells you the current version of the java port of dmPing currently being used.", ephemeral = true)
 	public void onVersion(CommandEvent event) {
-		event.reply(Main.config.getVersion()+(Main.config.isBeta()?"-beta":""));
+		event.reply(Main.config.get("version")+(Main.config.get("beta", Boolean.class)?"-beta":""));
 	}
 
 	@SlashCommand(value = "source", desc = "Sends you the github to view the code of the bot.", ephemeral = true)
@@ -79,7 +71,6 @@ public class CommandManager {
 
 	@SlashCommand(value = "changelog", desc = "View the entire history of the bot, with all updates and everything!", ephemeral = true)
 	public void onChangeLog(CommandEvent event) {
-		int charLimit = 60;
 		EmbedBuilder builder = new EmbedBuilder();
 		builder
 				.addField("1.0.0", "Added all functionality from root's dmPing bot (do /original-js to view the original code for dmPing by Tessy)", false)
@@ -104,6 +95,7 @@ public class CommandManager {
 				//.addField("5.4.0", "Moved to new guild. Changed caching to use a database, removed guests. Next update will add /help.", false)
 				//.addField("5.4.1/5.4.2", "Bug fixes, cleaning code, etc.", false)
 				.addField("5.4.3", "Updated JDA, added custom status, cleaned code a bit, deprecated stuff", false)
+				.addField("5.4.4", "Make dmping function - no antidelete currently", true)
 		;
 
 		builder
@@ -111,7 +103,7 @@ public class CommandManager {
 				.setColor(Color.BLUE)
 				.setTitle("**Changelog**");
 
-		Main.instance.jda.retrieveUserById(Main.config.getOwnerId()).queue(user -> {
+		Main.instance.jda.retrieveUserById(Main.config.get("ownerId", String.class)).queue(user -> {
 			builder.setThumbnail(user.getAvatarUrl());
 		});
 

@@ -1,20 +1,15 @@
 package ml.scyye.dmping;
 
 import com.github.kaktushose.jda.commands.JDACommands;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import dev.scyye.botcommons.config.Config;
 import ml.scyye.dmping.commands.CommandManager;
 import ml.scyye.dmping.listeners.*;
-import ml.scyye.dmping.utils.Config;
 import net.dv8tion.jda.api.*;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.util.HashMap;
 
 public class Main {
 
@@ -25,10 +20,22 @@ public class Main {
 	public static Config config;
 
 	private Main() throws InterruptedException {
-		jda = JDABuilder.createDefault(config.getToken())
+		config = Config.makeConfig(new HashMap<>(){{
+			put("token", "TOKEN");
+			put("guildId", "GUILD_ID");
+			put("ownerId", "OWNER_ID");
+			put("version", "VERSION");
+			put("beta", false);
+			put("devMode", false);
+			put("blacklist", new String[]{});
+		}}, "dmping-assets/config");
+
+		jda = JDABuilder.createDefault(config.get("token", String.class))
 				.setActivity(Activity.of(Activity.ActivityType.CUSTOM_STATUS, "dmPing V" +
-						config.getVersion()+(config.isBeta()?"-b" : "")))
-				.enableCache(CacheFlag.VOICE_STATE)
+						config.get("version")+(config.get("beta", Boolean.class) ?"-b" : "")))
+				.enableCache(
+						CacheFlag.VOICE_STATE
+				)
 				.enableIntents(
 						GatewayIntent.MESSAGE_CONTENT,
 						GatewayIntent.GUILD_MEMBERS,
@@ -39,44 +46,26 @@ public class Main {
 						new DMPing(),
 						new Sub5AlltsOnlyListener(),
 						new VcJoinListener(),
-						new Antidelete()
+						new Antidelete(),
+						new ReactionNotificationListener()
 				)
 				.build()
 				.awaitReady();
+
+
 	}
 
 	public static void main(String[] args) throws InterruptedException {
-		loadConfig();
 		instance=new Main();
-		postInit();
-	}
-
-	static void loadConfig() {
-		final Gson gson = new GsonBuilder().setPrettyPrinting().create();
-		final Path configFilePath = Path.of("src","main", "resources", "config.json");
-
-		final File configFile = configFilePath.toFile();
-		try {
-			if (!configFile.exists()) {
-				if (!configFile.createNewFile())
-					loadConfig();
-				Files.writeString(configFilePath, gson.toJson(Config.defaultConfig(), Config.class));
-			}
-			config = gson.fromJson(Files.readString(configFilePath), Config.class);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	public static void postInit() {
 		String commandsPackage = CommandManager.class.getPackageName();
 
 
 		JDACommands.start(instance.jda, instance.getClass(), commandsPackage, commandsPackage+".music");
 
-		Main.instance.jda.getGuilds().get(0).getSelfMember().modifyNickname("dmPing"+(config.isBeta()?" V"+config.getVersion()+"-beta":"")).queue();
+		Main.instance.jda.getGuilds().get(0).getSelfMember().modifyNickname
+				// "dmPing" if not beta, "dmPing VERSION-beta" if beta
+				("dmPing"+(config.get("beta", Boolean.class)?" V"+config.get("version")+"-beta":"")).queue();
 	}
-
 
 
 	public static void print(String... strings) {

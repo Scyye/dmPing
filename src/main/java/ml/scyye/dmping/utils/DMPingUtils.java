@@ -1,15 +1,14 @@
 package ml.scyye.dmping.utils;
 
 import ml.scyye.dmping.listeners.DMPing;
+import ml.scyye.dmping.listeners.Sub5AlltsOnlyListener;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.util.*;
-import java.util.function.Predicate;
 
 import static ml.scyye.dmping.Main.*;
 import static ml.scyye.dmping.utils.MessageUtils.sendTempMessage;
@@ -50,11 +49,17 @@ public class DMPingUtils {
             assert tempFile!=null;
             tempFile.deleteOnExit();
 
+
+
             try (FileOutputStream fos = new FileOutputStream(tempFile)){
                 assert stream != null;
-                IOUtils.copy(stream, fos);
-            } catch (IOException ignored) {}
-
+                byte[] bytes = new byte[8192];
+                int n;
+                while (-1 != (n = stream.read(bytes)))
+                    fos.write(bytes, 0, n);}
+            catch (IOException e) {
+                e.printStackTrace();
+            }
             files.add(tempFile);
         });
 
@@ -89,37 +94,34 @@ public class DMPingUtils {
         );
     }
 
-    public static DMPing.MentionUsers mentionUsers(MessageReceivedEvent event, @Nullable Predicate<Member> predicate) {
+    public static DMPing.MentionUsers mentionUsers(MessageReceivedEvent event) {
+        System.out.println("Mentioning users");
         Message message = event.getMessage();
 
-        if (event.getAuthor().isBot()) return new DMPing.MentionUsers("", "");
-
-        List<Member> ping = new ArrayList<>();
-
-        for (Member member : event.getGuild().getMembers()) {
-            if (predicate==null) {
-                ping.addAll(event.getGuild().getMembers());
-                break;
-            }
-            if (predicate.test(member))
-                ping.add(member);
+        if (event.getAuthor().isBot()) {
+            System.out.println("Author is bot");
+            return new DMPing.MentionUsers("", "");
         }
 
-        for (Member member : event.getGuild().getMembers()) {
-            if (message.getContentRaw().contains(member.getUser().getName()) || message.getMentions().getMembers().contains(member)) {
-                ping.remove(member);
-            }
-        }
+        List<Member> ping = new ArrayList<>(Sub5AlltsOnlyListener.sub5AlltsMembers);
+
+        System.out.println(ping.size());
+
+
+        ping.removeIf(member -> message.getContentRaw().contains(member.getUser().getName()) || message.getMentions().getMembers().contains(member));
+
+        System.out.println(ping.size());
 
         if (message.getContentRaw().contains("@everyone")) {
+            System.out.println("Contains everyone");
             return new DMPing.MentionUsers("", "");
         }
 
         // Removes the message sender from the ArrayList
-        ping.remove(event.getGuild().getMemberById(event.getAuthor().getId()));
+        ping.remove(event.getMember());
 
         // Removes dmPing
-        ping.remove(message.getGuild().getMemberById(instance.jda.getSelfUser().getId()));
+        ping.remove(event.getGuild().getSelfMember());
 
         // If there's no one to ping, it does nothing
         if (ping.isEmpty()) return new DMPing.MentionUsers("", "");
@@ -146,5 +148,4 @@ public class DMPingUtils {
 
         return new DMPing.MentionUsers(pingNamesBuilder.toString(), pingStringBuilder.toString());
     }
-
 }

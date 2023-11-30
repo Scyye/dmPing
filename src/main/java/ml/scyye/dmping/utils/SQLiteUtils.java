@@ -5,8 +5,9 @@ import ml.scyye.dmping.listeners.Antidelete;
 import java.sql.*;
 import java.util.*;
 
+// TODO: Readd SQLiteUtils and make it work lol
 public class SQLiteUtils {
-
+/*
     private static Connection connect() {
         Connection conn = null;
         try {
@@ -26,6 +27,7 @@ public class SQLiteUtils {
         try {
             Connection connection = connect();
             PreparedStatement statement = connection.prepareStatement(sql);
+
             statement.setString(1, messageId);
             statement.setString(2, userId);
             statement.setString(3, messageContent);
@@ -36,12 +38,13 @@ public class SQLiteUtils {
     }
 
     public static Antidelete.CachedMessage findByMessageId(String messageId) {
-        String sql = "SELECT * FROM cache";
+        String sql = "SELECT * FROM cache WHERE message_id = ?";
 
         try {
             Connection connection = connect();
-            Statement statement = connection.createStatement();
-            ResultSet set = statement.executeQuery(sql);
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setString(1, messageId);
+
 
             while (set.next()) {
                 if (set.getString(1).equals(messageId))
@@ -79,7 +82,7 @@ public class SQLiteUtils {
                 """, message.messageId, message.authorId, message.content);
     }
 
-    /*
+
     public static void createNewTable() {
         String sql = """
                 CREATE TABLE IF NOT EXISTS cache (
@@ -97,5 +100,7 @@ public class SQLiteUtils {
             e.printStackTrace();
         }
     }
-     */
+
+
+ */
 }

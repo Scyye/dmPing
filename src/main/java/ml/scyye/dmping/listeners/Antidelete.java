@@ -12,8 +12,9 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+// TODO: Make this actually work lol
 public class Antidelete extends S2AListener {
-
+/*
 	public static class CachedMessage {
 		public String  messageId;
 		public String  authorId;
@@ -95,6 +96,6 @@ public class Antidelete extends S2AListener {
 		}
 
 	}
-
+ */
 
 }

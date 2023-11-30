@@ -3,6 +3,7 @@ package ml.scyye.dmping.utils;
 import lombok.Getter;
 import lombok.Setter;
 
+@Deprecated(since = "5.4.5", forRemoval = true)
 public class Config {
     @Getter
     private final String token;
