@@ -22,11 +22,8 @@ public class Config {
     @Getter
     private final boolean devMode;
 
-    @Getter
-    @Setter
-    private String[] blacklist;
 
-    private Config(String token, String uniToken, String guildId, String ownerId, String version, boolean beta, boolean devMode, String... blacklist) {
+    private Config(String token, String uniToken, String guildId, String ownerId, String version, boolean beta, boolean devMode) {
         this.token = token;
         this.uniToken = uniToken;
         this.guildId = guildId;
@@ -34,7 +31,6 @@ public class Config {
         this.version = version;
         this.beta = beta;
         this.devMode = devMode;
-        this.blacklist = blacklist;
     }
 
     public static Config defaultConfig() {

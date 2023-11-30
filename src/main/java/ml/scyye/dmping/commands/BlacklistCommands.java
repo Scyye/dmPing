@@ -15,6 +15,10 @@ import java.util.Arrays;
 public class BlacklistCommands {
     @SlashCommand(value = "blacklist add", desc = "Adds a user to the blacklist.", ephemeral = true, enabledFor = Permission.BAN_MEMBERS)
     public void onBlacklistAdd(CommandEvent event, @Param("The user to add to the blacklist") User target) {
+        if (true) {
+            event.reply("Sorry. Blacklist is currently disabled.");
+            return;
+        }
         if (target.getId().equalsIgnoreCase(event.getUser().getId()) || Arrays.toString(Main.config.get("blacklist", String[].class)).contains(target.getId())){
             event.reply("There was an error adding `" + target.getId() + "` ("+target.getName()+") to the blacklist, are you sure they exist? Maybe it's you, or the person is already blacklisted! do /blacklist list to view the blacklist!");
             return;
@@ -25,6 +29,10 @@ public class BlacklistCommands {
 
     @SlashCommand(value = "blacklist remove", desc = "Removes a user from the blacklist.", ephemeral = true, enabledFor = Permission.BAN_MEMBERS)
     public void onBlacklistRemove(CommandEvent event, @Param("The user to remove from the blacklist") User target) {
+        if (true) {
+            event.reply("Sorry. Blacklist is currently disabled.");
+            return;
+        }
         if (target.getId().equalsIgnoreCase(event.getUser().getId())){
             event.reply("There was an error removing `"+target.getId()+"` ("+target.getName()+") from the blacklist, are you sure they exist? Maybe it's you, or the person isn't blacklisted? do /blacklist list to view the blacklist"); return;
         }
@@ -37,6 +45,10 @@ public class BlacklistCommands {
 
     @SlashCommand(value = "blacklist list", desc = "Lists the blacklist.", ephemeral = true, enabledFor = Permission.BAN_MEMBERS)
     public void onBlacklistList(CommandEvent event) {
+        if (true) {
+            event.reply("Sorry. Blacklist is currently disabled.");
+            return;
+        }
         EmbedBuilder builder = new EmbedBuilder();
         if (Main.config.get("blacklist", String[].class).length==0) {
             builder.addField("No Blacklisted Users", "The blacklist is empty!", false);

@@ -27,7 +27,6 @@ public class Main {
 			put("version", "VERSION");
 			put("beta", false);
 			put("devMode", false);
-			put("blacklist", new String[]{});
 		}}, "dmping-assets/config");
 
 		jda = JDABuilder.createDefault(config.get("token", String.class))
