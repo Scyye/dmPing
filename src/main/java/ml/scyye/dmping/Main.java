@@ -4,6 +4,7 @@ import com.github.kaktushose.jda.commands.JDACommands;
 import dev.scyye.botcommons.config.Config;
 import ml.scyye.dmping.commands.CommandManager;
 import ml.scyye.dmping.listeners.*;
+import ml.scyye.dmping.utils.SQLiteUtils;
 import net.dv8tion.jda.api.*;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.requests.GatewayIntent;
@@ -60,6 +61,7 @@ public class Main {
 
 
 		JDACommands.start(instance.jda, instance.getClass(), commandsPackage, commandsPackage+".music");
+		SQLiteUtils.init();
 
 		Main.instance.jda.getGuilds().get(0).getSelfMember().modifyNickname
 				// "dmPing" if not beta, "dmPing VERSION-beta" if beta

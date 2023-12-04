@@ -6,7 +6,7 @@
 
     <groupId>ml.scyye</groupId>
     <artifactId>dmping</artifactId>
-    <version>5.4.3</version>
+    <version>5.4.5</version>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -34,7 +34,7 @@
                             </transformers>
 
                             <createDependencyReducedPom>false</createDependencyReducedPom>
-                            <finalName>dmPing</finalName>
+                            <finalName>dmPing-build</finalName>
                         </configuration>
                     </execution>
                 </executions>

@@ -1,106 +1,65 @@
 package ml.scyye.dmping.utils;
 
+import com.google.gson.Gson;
 import ml.scyye.dmping.listeners.Antidelete;
 
-import java.sql.*;
-import java.util.*;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
 // TODO: Readd SQLiteUtils and make it work lol
 public class SQLiteUtils {
-/*
-    private static Connection connect() {
-        Connection conn = null;
-        try {
-            String cacheDatabaseUrl = "jdbc:sqlite:C:/sqlite/dmping_caching.db";
-            conn = DriverManager.getConnection(cacheDatabaseUrl);
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        }
-        return conn;
-    }
+	static List<Antidelete.CachedMessage> cache = new ArrayList<>();
 
-    public static void insertEntry(String messageId, String userId, String messageContent) {
-        String sql = """
-                INSERT INTO cache(message_id, user_id, message_content) VALUES(?,?,?)
-                """;
+	public static void init() {
+		try {
+			cache = new Gson().fromJson(Files.readString(Path.of("dmping-assets/cache.json")), List.class);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
-        try {
-            Connection connection = connect();
-            PreparedStatement statement = connection.prepareStatement(sql);
-
-            statement.setString(1, messageId);
-            statement.setString(2, userId);
-            statement.setString(3, messageContent);
-            statement.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static Antidelete.CachedMessage findByMessageId(String messageId) {
-        String sql = "SELECT * FROM cache WHERE message_id = ?";
-
-        try {
-            Connection connection = connect();
-            PreparedStatement statement = connection.prepareStatement(sql);
-            statement.setString(1, messageId);
-
-
-            while (set.next()) {
-                if (set.getString(1).equals(messageId))
-                    return new Antidelete.CachedMessage(set.getString(1), set.getString(2), set.getString(3));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return new Antidelete.CachedMessage();
-    }
+	static void save() {
+		try {
+			Files.writeString(Path.of("dmping-assets/cache.json"), new Gson().toJson(cache));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
     public static List<Antidelete.CachedMessage> findAllCachedMessages() {
-        String sql = "SELECT * FROM cache";
-        List<Antidelete.CachedMessage> messages = new ArrayList<>();
-
-        try {
-            Connection connection = connect();
-            Statement statement = connection.createStatement();
-            ResultSet set = statement.executeQuery(sql);
-
-            while (set.next()) {
-                messages.add(new Antidelete.CachedMessage(set.getString(1), set.getString(2), set.getString(3)));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return messages;
+        return cache;
     }
 
-    public String formatCacheMessage(Antidelete.CachedMessage message) throws SQLException {
-        return String.format("""
-                message_id: %s
-                user_id: %s
-                message_content: %s
-                """, message.messageId, message.authorId, message.content);
-    }
+	public static Antidelete.CachedMessage findMessageById(String id) {
+		if (id==null)
+			return new Antidelete.CachedMessage();
+		return findAllCachedMessages().stream().filter(cachedMessage -> cachedMessage.messageId.equals(id)).findFirst().orElse(new Antidelete.CachedMessage("", "", ""));
+	}
 
+	public static void insertEntry(String messageId, String authorId, String content) {
+		cache.add(new Antidelete.CachedMessage(messageId, authorId, content));
+		save();
+	}
 
-    public static void createNewTable() {
-        String sql = """
-                CREATE TABLE IF NOT EXISTS cache (
-                 message_id text PRIMARY KEY,
-                 user_id text NOT NULL,
-                 message_content text NOT NULL
-                );
-                """;
+	public static void insertEntry(Antidelete.CachedMessage cachedMessage) {
+		cache.add(cachedMessage);
+		save();
+	}
 
-        try{
-            Connection conn = DriverManager.getConnection(cacheDatabaseUrl);
-            Statement stmt = conn.createStatement();
-            stmt.execute(sql);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
+	public static void removeEntry(String messageId) {
+		cache.remove(findMessageById(messageId));
+		save();
+	}
 
-
- */
+	public static void updateEntry(String messageId, String authorId, String content) {
+		Antidelete.CachedMessage cachedMessage = findMessageById(messageId);
+		cache.remove(cachedMessage);
+		cachedMessage.authorId = authorId;
+		cachedMessage.content = content;
+		cache.add(cachedMessage);
+		save();
+	}
 }
