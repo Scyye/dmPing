@@ -1,9 +1,9 @@
-package ml.scyye.dmping.utils;
+package dev.scyye.dmping.utils;
 
 import com.sun.speech.freetts.*;
 import com.sun.speech.freetts.audio.*;
-import ml.scyye.dmping.Main;
-import ml.scyye.dmping.commands.music.PlayerManager;
+import dev.scyye.dmping.Main;
+import dev.scyye.dmping.commands.music.PlayerManager;
 
 import javax.sound.sampled.AudioFileFormat;
 import java.io.File;

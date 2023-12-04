@@ -1,6 +1,6 @@
-package ml.scyye.dmping.listeners;
+package dev.scyye.dmping.listeners;
 
-import ml.scyye.dmping.utils.*;
+import dev.scyye.dmping.utils.*;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.events.message.*;

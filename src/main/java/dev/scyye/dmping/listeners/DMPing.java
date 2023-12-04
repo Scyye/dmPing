@@ -1,16 +1,13 @@
-package ml.scyye.dmping.listeners;
+package dev.scyye.dmping.listeners;
 
 import lombok.Getter;
-import ml.scyye.dmping.utils.S2AListener;
-import ml.scyye.dmping.utils.TextToSpeechUtil;
+import dev.scyye.dmping.utils.S2AListener;
+import dev.scyye.dmping.utils.TextToSpeechUtil;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import java.util.Arrays;
-
-import static ml.scyye.dmping.Main.config;
-import static ml.scyye.dmping.utils.APIGetNotNullUtils.*;
-import static ml.scyye.dmping.utils.DMPingUtils.*;
+import static dev.scyye.dmping.utils.APIGetNotNullUtils.*;
+import static dev.scyye.dmping.utils.DMPingUtils.*;
 
 public class DMPing extends S2AListener {
 

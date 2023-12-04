@@ -1,8 +1,8 @@
-package ml.scyye.dmping.commands;
+package dev.scyye.dmping.commands;
 
 import com.github.kaktushose.jda.commands.annotations.interactions.*;
 import com.github.kaktushose.jda.commands.dispatching.commands.CommandEvent;
-import ml.scyye.dmping.Main;
+import dev.scyye.dmping.Main;
 import net.dv8tion.jda.api.*;
 
 import java.awt.*;

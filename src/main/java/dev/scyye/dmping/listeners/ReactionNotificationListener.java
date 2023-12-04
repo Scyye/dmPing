@@ -1,7 +1,7 @@
-package ml.scyye.dmping.listeners;
+package dev.scyye.dmping.listeners;
 
-import ml.scyye.dmping.utils.MessageUtils;
-import ml.scyye.dmping.utils.S2AListener;
+import dev.scyye.dmping.utils.MessageUtils;
+import dev.scyye.dmping.utils.S2AListener;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;

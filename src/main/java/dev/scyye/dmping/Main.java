@@ -1,10 +1,10 @@
-package ml.scyye.dmping;
+package dev.scyye.dmping;
 
 import com.github.kaktushose.jda.commands.JDACommands;
 import dev.scyye.botcommons.config.Config;
-import ml.scyye.dmping.commands.CommandManager;
-import ml.scyye.dmping.listeners.*;
-import ml.scyye.dmping.utils.SQLiteUtils;
+import dev.scyye.dmping.commands.CommandManager;
+import dev.scyye.dmping.listeners.*;
+import dev.scyye.dmping.utils.SQLiteUtils;
 import net.dv8tion.jda.api.*;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.requests.GatewayIntent;

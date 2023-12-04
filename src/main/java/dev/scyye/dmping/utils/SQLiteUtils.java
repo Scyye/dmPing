@@ -1,7 +1,7 @@
-package ml.scyye.dmping.utils;
+package dev.scyye.dmping.utils;
 
 import com.google.gson.Gson;
-import ml.scyye.dmping.listeners.Antidelete;
+import dev.scyye.dmping.listeners.Antidelete;
 
 import java.io.IOException;
 import java.nio.file.Files;

@@ -1,6 +1,6 @@
-package ml.scyye.dmping.listeners;
+package dev.scyye.dmping.listeners;
 
-import ml.scyye.dmping.utils.TextToSpeechUtil;
+import dev.scyye.dmping.utils.TextToSpeechUtil;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
