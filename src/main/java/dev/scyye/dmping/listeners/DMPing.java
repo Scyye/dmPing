@@ -13,21 +13,17 @@ public class DMPing extends S2AListener {
 
 	@Override
 	public void onMessageReceived(MessageReceivedEvent event) {
+		if (event.getAuthor().isBot()) return;
+
 		if (event.getChannelType()==ChannelType.VOICE) {
-			String message = event.getMessage().getContentDisplay();
-			TextToSpeechUtil.play("%s said %s".formatted(event.getAuthor().getName(), message));
+			TextToSpeechUtil.play("%s said %s", event.getMember().getEffectiveName(),
+					event.getMessage().getContentDisplay());
 			return;
 		}
 
-
-		if (event.getAuthor().isBot()) {
-			return;
-		}
-
-		if (!event.getMessage().getAttachments().isEmpty()) {
+		if (!event.getMessage().getAttachments().isEmpty())
 			forwardAttachments(event, ensureGetChannelByName(event.getGuild(), "media-stuff"));
-			return;
-		}
+
 
 		// Gets all users it should mention
 		MentionUsers mentionUsers = mentionUsers(event);

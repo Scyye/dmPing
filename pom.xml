@@ -46,7 +46,7 @@
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>5.0.0-beta.15</version>
+            <version>5.0.0-beta.18</version>
             <exclusions>
                 <!-- Removes audio as to save space, you can remove the exclusion if you want to use audio -->
                 <exclusion>
@@ -64,20 +64,20 @@
         <dependency>
             <groupId>com.github.kaktushose</groupId>
             <artifactId>jda-commands</artifactId>
-            <version>4.0.0-alpha.2</version>
+            <version>4.0.0-beta.1</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/dev.arbjerg.lavalink/plugin-api -->
         <dependency>
             <groupId>dev.arbjerg.lavalink</groupId>
             <artifactId>plugin-api</artifactId>
-            <version>4.0.0-beta.3</version>
+            <version>4.0.0</version>
         </dependency>
 
         <dependency>
             <groupId>dev.scyye</groupId>
             <artifactId>BotCommons</artifactId>
-            <version>1.1</version>
+            <version>1.3</version>
         </dependency>
 
 

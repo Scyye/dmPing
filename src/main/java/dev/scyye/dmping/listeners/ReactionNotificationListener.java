@@ -15,12 +15,13 @@ public class ReactionNotificationListener extends S2AListener {
 			EmbedBuilder builder = new EmbedBuilder();
 			builder.setTitle("Reaction Notification");
 			builder.setAuthor(reactor.getEffectiveName(), reactor.getAvatarUrl(), reactor.getAvatarUrl());
-			builder.setDescription("""
-					%s reacted to [your message](%s) in %s with %s
-					""".formatted(reactor.getAsMention(),
-					"https://discord.com/channels/"+event.getGuild().getId()+"/"+event.getChannel().getId()+"/"+event.getMessageId(),
-					event.getChannel().getAsMention(), event.getReaction().getEmoji().getFormatted()));
-			MessageUtils.sendPrivateMessage(user, builder.build());
+			event.getChannel().retrieveMessageById(event.getMessageId()).queue(message -> {
+				builder.setDescription("%s reacted to [your message](%s) in %s with %s".formatted(
+						reactor.getAsMention(),
+						message.getJumpUrl(),
+						event.getChannel().getAsMention(), event.getReaction().getEmoji().getFormatted()));
+				MessageUtils.sendPrivateMessage(user, builder.build());
+			});
 		});
 	}
 }

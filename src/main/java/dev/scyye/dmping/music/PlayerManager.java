@@ -1,4 +1,4 @@
-package dev.scyye.dmping.commands.music;
+package dev.scyye.dmping.music;
 
 import com.sedmelluq.discord.lavaplayer.player.*;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;

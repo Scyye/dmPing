@@ -21,25 +21,25 @@ public class Antidelete extends S2AListener {
 			this.attachments = attachments;
 		}
 
-		public CachedMessage() {}
+		public CachedMessage() {
+			this.messageId= "";
+			this.authorId = "";
+			this.content = "";
+			this.attachments = new String[0];
+		}
 	}
 
 	@Override
 	public void onMessageDelete(@NotNull MessageDeleteEvent event) {
-		if (event.getChannelType() != ChannelType.TEXT || event.getChannelType() == ChannelType.PRIVATE) return;
+		if (event.isFromType(ChannelType.TEXT) || event.isFromType(ChannelType.PRIVATE)) return;
 
 		CachedMessage cachedMessage = SQLiteUtils.findMessageById(event.getMessageId());
-		if (cachedMessage.authorId==null)
-			return;
-		if (cachedMessage.authorId.isEmpty())
-			return;
+		if (cachedMessage.authorId==null || cachedMessage.authorId.isEmpty()) return;
 
-		Member member = event.getGuild().retrieveMemberById(cachedMessage.authorId).complete();
-
-		MessageUtils.sendWebhookMessage(event.getChannel().asTextChannel(), cachedMessage.content,
-				member.getEffectiveName()+" (Deleted Message)", member.getEffectiveAvatarUrl());
-
-		SQLiteUtils.removeEntry(event.getMessageId());
+		event.getGuild().retrieveMemberById(cachedMessage.authorId).queue(member -> {
+			MessageUtils.sendWebhookMessage(event.getChannel().asTextChannel(), cachedMessage.content,
+					member.getEffectiveName()+" (Deleted Message)", member.getEffectiveAvatarUrl());
+		});
 	}
 
 	@Override

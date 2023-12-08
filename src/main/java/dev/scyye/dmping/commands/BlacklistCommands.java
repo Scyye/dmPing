@@ -1,7 +1,7 @@
 package dev.scyye.dmping.commands;
 
 import com.github.kaktushose.jda.commands.annotations.interactions.*;
-import com.github.kaktushose.jda.commands.dispatching.commands.CommandEvent;
+import com.github.kaktushose.jda.commands.dispatching.interactions.commands.CommandEvent;
 
 import dev.scyye.dmping.Main;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.entities.User;
 
 import java.util.Arrays;
 
+@Deprecated(since = "5.4.5-beta", forRemoval = true)
 @Interaction
 public class BlacklistCommands {
     @SlashCommand(value = "blacklist add", desc = "Adds a user to the blacklist.", ephemeral = true, enabledFor = Permission.BAN_MEMBERS)

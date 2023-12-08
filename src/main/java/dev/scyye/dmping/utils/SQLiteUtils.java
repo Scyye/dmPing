@@ -36,7 +36,8 @@ public class SQLiteUtils {
 	public static Antidelete.CachedMessage findMessageById(String id) {
 		if (id==null)
 			return new Antidelete.CachedMessage();
-		return findAllCachedMessages().stream().filter(cachedMessage -> cachedMessage.messageId.equals(id)).findFirst().orElse(new Antidelete.CachedMessage("", "", ""));
+		return findAllCachedMessages().stream().filter(cachedMessage -> cachedMessage.messageId.equals(id))
+				.findFirst().orElse(new Antidelete.CachedMessage());
 	}
 
 	public static void insertEntry(String messageId, String authorId, String content) {

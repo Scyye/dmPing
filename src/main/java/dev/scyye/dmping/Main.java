@@ -27,15 +27,11 @@ public class Main {
 			put("ownerId", "OWNER_ID");
 			put("version", "VERSION");
 			put("beta", false);
-			put("devMode", false);
-		}}, "dmping-assets/config");
+		}}, "dmping");
 
 		jda = JDABuilder.createDefault(config.get("token", String.class))
 				.setActivity(Activity.of(Activity.ActivityType.CUSTOM_STATUS, "dmPing V" +
 						config.get("version")+(config.get("beta", Boolean.class) ?"-b" : "")))
-				.enableCache(
-						CacheFlag.VOICE_STATE
-				)
 				.enableIntents(
 						GatewayIntent.MESSAGE_CONTENT,
 						GatewayIntent.GUILD_MEMBERS,
@@ -56,11 +52,9 @@ public class Main {
 	}
 
 	public static void main(String[] args) throws InterruptedException {
-		instance=new Main();
-		String commandsPackage = CommandManager.class.getPackageName();
+		instance = new Main();
 
-
-		JDACommands.start(instance.jda, instance.getClass(), commandsPackage, commandsPackage+".music");
+		JDACommands.start(instance.jda, instance.getClass(), "dev.scyye.dmping.commands");
 		SQLiteUtils.init();
 
 		Main.instance.jda.getGuilds().get(0).getSelfMember().modifyNickname

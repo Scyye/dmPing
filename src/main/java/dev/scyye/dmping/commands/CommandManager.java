@@ -1,7 +1,7 @@
 package dev.scyye.dmping.commands;
 
 import com.github.kaktushose.jda.commands.annotations.interactions.*;
-import com.github.kaktushose.jda.commands.dispatching.commands.CommandEvent;
+import com.github.kaktushose.jda.commands.dispatching.interactions.commands.CommandEvent;
 import dev.scyye.dmping.Main;
 import net.dv8tion.jda.api.*;
 
@@ -55,7 +55,7 @@ public class CommandManager {
 
 	@SlashCommand(value = "say", desc = "Says something as the bot", ephemeral = true)
 	public void onSay(CommandEvent event, @Param("message") String message) {
-		event.getTextChannel().sendMessage(message).queue();
+		event.getMessageChannel().sendMessage(message).queue();
 		event.reply("Sent message:\n"+message);
 	}
 
@@ -77,11 +77,11 @@ public class CommandManager {
 				// .addField("1.1.0", limitWords("Fixed many bugs, including spamming breaking the bot, and the bot infinitely pining itself.", charLimit), false)
 				// .addField("2.0.0", limitWords("Added a 'Deleter' which automatically deletes messages sent by the bot every 2-3 minutes, to prevent the bot from clogging channels.", charLimit), false)
 				// .addField("2.0.1 - 2.0.16", limitWords("Fixed bugs", charLimit), true)
-				.addField("3.0.0", "Implemented the blacklist. /blacklist-add <User> to blacklist someone. /blacklist-remove <User> also works.", false)
+				// .addField("3.0.0", "Implemented the blacklist. /blacklist-add <User> to blacklist someone. /blacklist-remove <User> also works.", false)
 				.addField("4.0.0", "Added the Anti-Delete Functionality. Where the bot caches messages, and prevents deletion of messages.", false)
 				// .addField("4.1.0", limitWords("Redid most of the commands, added a command that allows listing blacklisted users, as well as responses for trying to add/remove yourself from the blacklist.", charLimit), false)
 				.addField("4.2.0", "Added /changelog, /version, and /original-js allowing you to view the entire history of the bot.", false)
-				.addField("4.2.1", "Updated TOKEN (thanks <@460904913732370434> bitch), cleaned up the code a bit, and added a MemberHandler that automatically gives <@&1058256598084096070>", false)
+				.addField("4.2.1", "Updated TOKEN (thanks <@460904913732370434> bitch), cleaned up the code a bit.", false)
 				// .addField("4.3.0", limitWords("Removed a bunch of spaghetti code, cleaned up the code even more. Added /github (/source) that sends you the github for the bot. Added a check for everyone pings (double pinging used to happen. As well as starting to add support for other guilds to use the bot; coming in the next full update.", charLimit), false)
 				// .addField("4.4.0", limitWords("Added edit logging to the AntiDelete functionality (CACHING MUST BE ENABLED FOR THIS TO WORK). Added a few more things to prepare for public release 1. The bot now joins general in Sub5Allts whenever it goes online.", charLimit), false)
 				// .addField("4.4.1", limitWords("Added more things preparing for the public release. It will all be tested soon, and 5.0 will come out then.", charLimit), false)
@@ -95,7 +95,8 @@ public class CommandManager {
 				//.addField("5.4.0", "Moved to new guild. Changed caching to use a database, removed guests. Next update will add /help.", false)
 				//.addField("5.4.1/5.4.2", "Bug fixes, cleaning code, etc.", false)
 				.addField("5.4.3", "Updated JDA, added custom status, cleaned code a bit, deprecated stuff", false)
-				.addField("5.4.4", "Make dmping function - no antidelete currently", true)
+				.addField("5.4.4", "Make dmping function - no antidelete currently, removed blacklist.", true)
+				.addField("5.4.5", "Readd anti-delete, make pinging work with media, updated dependencies.", true)
 		;
 
 		builder
