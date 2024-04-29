@@ -1,6 +1,8 @@
 package dev.scyye.dmping.utils;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import dev.scyye.dmping.listeners.Antidelete;
 
 import java.io.IOException;
@@ -8,8 +10,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
-// TODO: Readd SQLiteUtils and make it work lol
 public class SQLiteUtils {
 	static List<Antidelete.CachedMessage> cache = new ArrayList<>();
 
@@ -29,16 +31,34 @@ public class SQLiteUtils {
 		}
 	}
 
-    public static List<Antidelete.CachedMessage> findAllCachedMessages() {
-        return cache;
-    }
+	public static List<Antidelete.CachedMessage> findAllCachedMessages() {
+		try {
+			TypeToken<List<Antidelete.CachedMessage>> typeToken = new TypeToken<>() {
+
+			};
+			return new Gson().fromJson(Files.readString(Path.of("dmping-assets/cache.json")), typeToken.getType());
+		} catch (IOException e) {
+			e.printStackTrace();
+			return new ArrayList<>();
+		}
+	}
 
 	public static Antidelete.CachedMessage findMessageById(String id) {
-		if (id==null)
+		Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
+		if (id == null)
 			return new Antidelete.CachedMessage();
-		return findAllCachedMessages().stream().filter(cachedMessage -> cachedMessage.messageId.equals(id))
-				.findFirst().orElse(new Antidelete.CachedMessage());
+
+		List<Antidelete.CachedMessage> cachedMessages = findAllCachedMessages()
+				.stream()
+				.filter(cachedMessage -> cachedMessage.messageId.equals(id))
+				.collect(Collectors.toList());
+
+		System.out.println(gson.toJson(cachedMessages));
+
+		return cachedMessages.isEmpty() ? new Antidelete.CachedMessage() : cachedMessages.get(0);
 	}
+
 
 	public static void insertEntry(String messageId, String authorId, String content) {
 		cache.add(new Antidelete.CachedMessage(messageId, authorId, content));

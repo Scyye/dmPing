@@ -3,6 +3,9 @@ package dev.scyye.dmping.listeners;
 import dev.scyye.dmping.utils.*;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
+import net.dv8tion.jda.api.entities.channel.concrete.PrivateChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.events.message.*;
 import org.jetbrains.annotations.NotNull;
 
@@ -28,19 +31,19 @@ public class Antidelete extends S2AListener {
 			this.attachments = new String[0];
 		}
 	}
-
+	/*
 	@Override
 	public void onMessageDelete(@NotNull MessageDeleteEvent event) {
-		if (event.isFromType(ChannelType.TEXT) || event.isFromType(ChannelType.PRIVATE)) return;
+		if (!event.isFromType(ChannelType.TEXT) || event.isFromType(ChannelType.PRIVATE)) return;
 
 		CachedMessage cachedMessage = SQLiteUtils.findMessageById(event.getMessageId());
 		if (cachedMessage.authorId==null || cachedMessage.authorId.isEmpty()) return;
 
-		event.getGuild().retrieveMemberById(cachedMessage.authorId).queue(member -> {
+		event.getJDA().retrieveUserById(cachedMessage.authorId).queue(user -> {
 			MessageUtils.sendWebhookMessage(event.getChannel().asTextChannel(), cachedMessage.content,
-					member.getEffectiveName()+" (Deleted Message)", member.getEffectiveAvatarUrl());
+					user.getEffectiveName()+" (Deleted Message)", user .getEffectiveAvatarUrl());
 		});
-	}
+	}*/
 
 	@Override
 	public void onMessageReceived(@NotNull MessageReceivedEvent event) {
@@ -54,6 +57,12 @@ public class Antidelete extends S2AListener {
 		if (event.isFromType(ChannelType.PRIVATE)) return;
 		if (!event.getMessage().isEdited()) return;
 
-		SQLiteUtils.updateEntry(event.getMessageId(), event.getAuthor().getId(), event.getMessage().getContentRaw());
+		try {
+			SQLiteUtils.updateEntry(event.getMessageId(), event.getAuthor().getId(), event.getMessage().getContentRaw());
+		} catch (Exception e) {
+			System.out.println("Failed to update message in SQLite database");
+			e.printStackTrace();
+		}
+
 	}
 }

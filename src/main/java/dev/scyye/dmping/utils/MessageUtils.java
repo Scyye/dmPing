@@ -9,10 +9,10 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static dev.scyye.dmping.utils.APIGetNotNullUtils.ensureGetWebhookByName;
 import static dev.scyye.dmping.utils.DMPingUtils.getFilesFromAttachments;
 
 public class MessageUtils {
@@ -44,22 +44,31 @@ public class MessageUtils {
         if (attachments==null) attachments=new Message.Attachment[0];
 
         List<Message.Attachment> attachmentList = List.of(attachments);
-        Webhook webhook = ensureGetWebhookByName(channel, author);
+        String finalMessage = message;
+        channel.retrieveWebhooks().queue(webhooks -> {
+            if (webhooks.stream().noneMatch(webhook -> webhook.getName().equals("DMPing")))
+                channel.createWebhook("DMPing").queue(webhook -> {
+                    WebhookClientBuilder webhookClientBuilder = new WebhookClientBuilder(webhook.getUrl());
+                    JDAWebhookClient client = webhookClientBuilder.buildJDA();
 
-        WebhookClientBuilder webhookClientBuilder = new WebhookClientBuilder(webhook.getUrl());
-        JDAWebhookClient client = webhookClientBuilder.buildJDA();
+                    WebhookMessageBuilder builder = new WebhookMessageBuilder()
+                            .setUsername(author)
+                            .setAvatarUrl(avatarUrl)
+                            ;
 
-        WebhookMessageBuilder builder = new WebhookMessageBuilder()
-                .setUsername(author)
-                .setAvatarUrl(avatarUrl)
-                ;
+                    if (!finalMessage.isEmpty())
+                        builder.setContent(finalMessage);
 
-        if (!message.isEmpty())
-            builder.setContent(message);
+                    if (!attachmentList.isEmpty())
+                        getFilesFromAttachments(attachmentList).forEach(builder::addFile);
 
-        if (!attachmentList.isEmpty())
-            getFilesFromAttachments(attachmentList).forEach(builder::addFile);
-
-        client.send(builder.build());
+                    client.send(builder.build());
+                });
+        });
     }
+
+    static HashMap<String, String[]> proxies = new HashMap<>(){{
+       put("invadertedious", new String[]{","});
+       put("scyye", new String[]{"syl.", "s.", "S.", ";;"});
+    }};
 }

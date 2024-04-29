@@ -5,6 +5,7 @@ import net.dv8tion.jda.api.entities.channel.concrete.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class APIGetNotNullUtils {
     public static Role ensureGetRoleByName(@NotNull Guild guild, String roleName, boolean ignoreCase) {
@@ -29,13 +30,5 @@ public class APIGetNotNullUtils {
         if (!channels.isEmpty() && !categories.isEmpty()) return channels.get(0);
         if (channels.isEmpty()) return categories.get(0).createTextChannel(channelName).complete();
         return guild.createCategory(category).complete().createTextChannel(channelName).complete();
-    }
-
-    public static Webhook ensureGetWebhookByName(TextChannel channel, String name) {
-        Webhook webhook = null;
-        for (var w : channel.retrieveWebhooks().complete()) {
-            if (w.getName().equals(name)) { webhook = w; break; }
-        }
-        return webhook!=null?webhook:channel.createWebhook(name).complete();
     }
 }
