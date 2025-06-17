@@ -22,9 +22,6 @@ public class Main {
 
 	private Main() throws InterruptedException {
 		config = Config.makeConfig(new HashMap<>(){{
-			put("token", "TOKEN");
-			put("guildId", "GUILD_ID");
-			put("ownerId", "OWNER_ID");
 			put("version", "VERSION");
 			put("beta", false);
 		}}, "dmping");
