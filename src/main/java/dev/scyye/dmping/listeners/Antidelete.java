@@ -2,6 +2,7 @@ package dev.scyye.dmping.listeners;
 
 import dev.scyye.dmping.utils.*;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.concrete.PrivateChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
@@ -31,7 +32,7 @@ public class Antidelete extends S2AListener {
 			this.attachments = new String[0];
 		}
 	}
-	/*
+
 	@Override
 	public void onMessageDelete(@NotNull MessageDeleteEvent event) {
 		if (!event.isFromType(ChannelType.TEXT) || event.isFromType(ChannelType.PRIVATE)) return;
@@ -43,13 +44,15 @@ public class Antidelete extends S2AListener {
 			MessageUtils.sendWebhookMessage(event.getChannel().asTextChannel(), cachedMessage.content,
 					user.getEffectiveName()+" (Deleted Message)", user .getEffectiveAvatarUrl());
 		});
-	}*/
+	}
 
 	@Override
 	public void onMessageReceived(@NotNull MessageReceivedEvent event) {
 		if (event.getAuthor().isBot()) return;
 		if (event.getMessage().getContentRaw().isEmpty()) return;
 		SQLiteUtils.insertEntry(event.getMessageId(), event.getAuthor().getId(), event.getMessage().getContentRaw());
+
+		event.getChannel().sendMessage("<@"+event.getAuthor().getId()+">").setAllowedMentions(null).queue();
 	}
 
 	@Override

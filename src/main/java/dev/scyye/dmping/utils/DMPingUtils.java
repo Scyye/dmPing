@@ -109,6 +109,7 @@ public class DMPingUtils {
 
 
         ping.removeIf(member -> message.getContentRaw().contains(member.getUser().getName()) || message.getMentions().getMembers().contains(member));
+        ping.removeIf(member -> member.getUser().isBot());
 
         System.out.println(ping.size());
 

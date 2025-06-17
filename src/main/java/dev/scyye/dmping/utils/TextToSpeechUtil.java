@@ -1,15 +1,31 @@
 package dev.scyye.dmping.utils;
 
-import com.sun.speech.freetts.*;
-import com.sun.speech.freetts.audio.*;
+import com.sun.speech.freetts.Voice;
+import com.sun.speech.freetts.VoiceManager;
+import com.sun.speech.freetts.audio.AudioPlayer;
+import com.sun.speech.freetts.audio.SingleFileAudioPlayer;
 import dev.scyye.dmping.Main;
 import dev.scyye.dmping.music.PlayerManager;
 
-import javax.sound.sampled.AudioFileFormat;
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Collection;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
+import javax.sound.sampled.AudioFileFormat;
+import javax.sound.sampled.AudioInputStream;
+
+
 
 public class TextToSpeechUtil {
+
+
+
 	public static void play(String message, Object... format) {
 		play(String.format(message, format));
 	}

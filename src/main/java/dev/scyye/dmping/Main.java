@@ -1,7 +1,7 @@
 package dev.scyye.dmping;
 
+import botcommons.config.Config;
 import com.github.kaktushose.jda.commands.JDACommands;
-import dev.scyye.botcommons.config.Config;
 import dev.scyye.dmping.commands.CommandManager;
 import dev.scyye.dmping.listeners.*;
 import dev.scyye.dmping.utils.SQLiteUtils;
@@ -30,8 +30,20 @@ public class Main {
 		}}, "dmping");
 
 		jda = JDABuilder.createDefault(config.get("token", String.class))
-				.setActivity(Activity.of(Activity.ActivityType.CUSTOM_STATUS, "dmPing V" +
-						config.get("version")+(config.get("beta", Boolean.class) ?"-b" : "")))
+				.setActivity(Activity.of(Activity.ActivityType.CUSTOM_STATUS,
+						// dmPing V5.4.5
+						"dmPing V" +config.get("version")
+								+
+
+								(
+										config.get("beta", Boolean.class)
+												?
+												"-b"
+												:
+												""
+								)))
+
+
 				.enableIntents(
 						GatewayIntent.MESSAGE_CONTENT,
 						GatewayIntent.GUILD_MEMBERS,
@@ -47,18 +59,6 @@ public class Main {
 				)
 				.build()
 				.awaitReady();
-
-		jda.getGuilds().forEach(
-				guild -> {
-					guild.getTextChannels().forEach(
-							channel -> channel.retrieveWebhooks().queue(webhooks -> {
-								webhooks.forEach(webhook -> {
-									webhook.delete().queue();
-								});
-							})
-					);
-				}
-		);
 	}
 
 	public static void main(String[] args) throws InterruptedException {
@@ -69,7 +69,8 @@ public class Main {
 
 		Main.instance.jda.getGuilds().get(0).getSelfMember().modifyNickname
 				// "dmPing" if not beta, "dmPing VERSION-beta" if beta
-				("dmPing"+(config.get("beta", Boolean.class)?" V"+config.get("version")+"-beta":"")).queue();
+				("dmPing"+ (config.get("beta", Boolean.class)? " V"+config.get("version")+"-beta":""))
+				.queue();
 	}
 
 
