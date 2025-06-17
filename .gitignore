@@ -30,3 +30,4 @@ target/
 dmping-assets/temp/audio-1696210918656.wav
 *.wav
 *.json
+dmping-assets/config.json
