@@ -51,8 +51,6 @@ public class Antidelete extends S2AListener {
 		if (event.getAuthor().isBot()) return;
 		if (event.getMessage().getContentRaw().isEmpty()) return;
 		SQLiteUtils.insertEntry(event.getMessageId(), event.getAuthor().getId(), event.getMessage().getContentRaw());
-
-		event.getChannel().sendMessage("<@"+event.getAuthor().getId()+">").setAllowedMentions(null).queue();
 	}
 
 	@Override
