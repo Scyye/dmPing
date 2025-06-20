@@ -1,5 +1,6 @@
 package dev.scyye.dmping.utils;
 
+import botcommons.config.Config;
 import club.minnced.discord.webhook.WebhookClientBuilder;
 import club.minnced.discord.webhook.external.JDAWebhookClient;
 import club.minnced.discord.webhook.send.WebhookMessageBuilder;
@@ -9,7 +10,6 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -38,37 +38,33 @@ public class MessageUtils {
      * @param author      The webhook's username (can be any String)
      * @param attachments A list of attachments to add to the message (can be empty as long as "message" is provided)
      */
-
-    public static void sendWebhookMessage(@NonNull TextChannel channel, String message, String author, String avatarUrl, Message.Attachment... attachments) {
-        if (message==null) message="";
+    public static void sendWebhookMessage(@NonNull TextChannel channel, @NonNull String message, String author, String avatarUrl, Message.Attachment... attachments) {
         if (attachments==null) attachments=new Message.Attachment[0];
 
         List<Message.Attachment> attachmentList = List.of(attachments);
-        String finalMessage = message;
         channel.retrieveWebhooks().queue(webhooks -> {
-            if (webhooks.stream().noneMatch(webhook -> webhook.getName().equals("DMPing")))
-                channel.createWebhook("DMPing").queue(webhook -> {
-                    WebhookClientBuilder webhookClientBuilder = new WebhookClientBuilder(webhook.getUrl());
-                    JDAWebhookClient client = webhookClientBuilder.buildJDA();
+            String webhookUrl = Config.getInstance().get("webhookUrl");
+            for (var wh : webhooks) {
+                if (wh.getUrl().equals(webhookUrl)) {
+                    System.out.println("Match");
+                    System.out.println(wh.getUrl());
+                    System.out.println(webhookUrl);
+                } else{
+                    System.out.println("No match");
+                    System.out.println(wh.getUrl());
+                    System.out.println(webhookUrl);
+                }
+            }
+            if (webhooks.stream().anyMatch(webhook -> webhook.getUrl().equals(webhookUrl))) {
+                JDAWebhookClient client = new WebhookClientBuilder(webhookUrl).buildJDA();
+                WebhookMessageBuilder builder = new WebhookMessageBuilder()
+                        .setUsername(author)
+                        .setAvatarUrl(avatarUrl)
+                        .setContent(message);
+                getFilesFromAttachments(attachmentList).forEach(builder::addFile);
 
-                    WebhookMessageBuilder builder = new WebhookMessageBuilder()
-                            .setUsername(author)
-                            .setAvatarUrl(avatarUrl)
-                            ;
-
-                    if (!finalMessage.isEmpty())
-                        builder.setContent(finalMessage);
-
-                    if (!attachmentList.isEmpty())
-                        getFilesFromAttachments(attachmentList).forEach(builder::addFile);
-
-                    client.send(builder.build());
-                });
+                client.send(builder.build());
+            }
         });
     }
-
-    static HashMap<String, String[]> proxies = new HashMap<>(){{
-       put("invadertedious", new String[]{","});
-       put("scyye", new String[]{"syl.", "s.", "S.", ";;"});
-    }};
 }

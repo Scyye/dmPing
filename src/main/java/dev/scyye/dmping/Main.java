@@ -2,13 +2,11 @@ package dev.scyye.dmping;
 
 import botcommons.config.Config;
 import com.github.kaktushose.jda.commands.JDACommands;
-import dev.scyye.dmping.commands.CommandManager;
 import dev.scyye.dmping.listeners.*;
 import dev.scyye.dmping.utils.SQLiteUtils;
 import net.dv8tion.jda.api.*;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.requests.GatewayIntent;
-import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
 import java.util.HashMap;
 
@@ -24,6 +22,7 @@ public class Main {
 		config = Config.makeConfig(new HashMap<>(){{
 			put("version", "VERSION");
 			put("beta", false);
+			put("webhookUrl", "WEBHOOK_URL");
 		}}, "dmping");
 
 		jda = JDABuilder.createDefault(config.get("token", String.class))

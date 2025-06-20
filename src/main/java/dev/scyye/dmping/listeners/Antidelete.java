@@ -1,16 +1,10 @@
 package dev.scyye.dmping.listeners;
 
 import dev.scyye.dmping.utils.*;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
-import net.dv8tion.jda.api.entities.channel.concrete.PrivateChannel;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.events.message.*;
 import org.jetbrains.annotations.NotNull;
 
-// TODO: Make this actually work lol
 public class Antidelete extends S2AListener {
 	public static class CachedMessage {
 		public String  messageId;
@@ -40,10 +34,9 @@ public class Antidelete extends S2AListener {
 		CachedMessage cachedMessage = SQLiteUtils.findMessageById(event.getMessageId());
 		if (cachedMessage.authorId==null || cachedMessage.authorId.isEmpty()) return;
 
-		event.getJDA().retrieveUserById(cachedMessage.authorId).queue(user -> {
-			MessageUtils.sendWebhookMessage(event.getChannel().asTextChannel(), cachedMessage.content,
-					user.getEffectiveName()+" (Deleted Message)", user .getEffectiveAvatarUrl());
-		});
+		event.getJDA().retrieveUserById(cachedMessage.authorId).queue(user ->
+				MessageUtils.sendWebhookMessage(event.getChannel().asTextChannel(), cachedMessage.content,
+				user.getEffectiveName()+" (Deleted Message)", user .getEffectiveAvatarUrl()));
 	}
 
 	@Override
