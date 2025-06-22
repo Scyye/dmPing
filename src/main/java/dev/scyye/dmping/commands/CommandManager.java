@@ -27,6 +27,16 @@ public class CommandManager {
 		event.getJDA().shutdown();
 	}
 
+	@Command(name = "restart", help = "Restarts the bot.")
+	public static void onRestart(GenericCommandEvent event,
+								 @Param(description = "params") String params) throws InterruptedException {
+		onShutdown(event);
+
+		if (event.getJDA().awaitShutdown()) {
+			Main.main(params.split(" "));
+		}
+	}
+
 	@Command(name = "original-js", help = "Displays the original JavaScript version of the bot written by root")
 	public static void onJs(GenericCommandEvent event) throws FileNotFoundException {
 		var reader = new BufferedReader(new FileReader("dmping-assets/dmping.txt"));
