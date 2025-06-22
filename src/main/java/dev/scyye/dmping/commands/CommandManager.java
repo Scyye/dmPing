@@ -1,19 +1,21 @@
 package dev.scyye.dmping.commands;
 
-import com.github.kaktushose.jda.commands.annotations.interactions.*;
-import com.github.kaktushose.jda.commands.dispatching.interactions.commands.CommandEvent;
+import botcommons.commands.Command;
+import botcommons.commands.CommandHolder;
+import botcommons.commands.GenericCommandEvent;
+import botcommons.commands.Param;
 import dev.scyye.dmping.Main;
 import net.dv8tion.jda.api.*;
 
 import java.awt.*;
 import java.io.*;
 
-@Interaction
+@CommandHolder
 public class CommandManager {
 
-	@SlashCommand(value = "shutdown", desc = "Shuts the bot down.", ephemeral = true)
-	public void onShutdown(CommandEvent event) {
-		if (!event.getUser().getId().equals(Main.config.get("ownerId", String.class))) {
+	@Command(name = "shutdown", help = "Shuts the bot down.")
+	public static void onShutdown(GenericCommandEvent event) {
+		if (!event.getUser().getId().equals(Main.config.get("owner-id", String.class))) {
 			event.reply("You can't do that!");
 			System.out.println(event.getUser().getEffectiveName()+ " Attempted to shutdown the bot, but wasn't cool enough!");
 			return;
@@ -25,52 +27,49 @@ public class CommandManager {
 		event.getJDA().shutdown();
 	}
 
-
-
-
-	@SlashCommand(value = "original-js", desc = "Displays the original JavaScript version of the bot written by root", ephemeral = true)
-	public void onJs(CommandEvent event) throws FileNotFoundException {
-		var reader = new BufferedReader(new FileReader("dmping.txt"));
+	@Command(name = "original-js", help = "Displays the original JavaScript version of the bot written by root")
+	public static void onJs(GenericCommandEvent event) throws FileNotFoundException {
+		var reader = new BufferedReader(new FileReader("dmping-assets/dmping.txt"));
 		StringBuilder builder = new StringBuilder();
 		for (var str : reader.lines().toList()) {
 			builder.append(str).append("\n");
 		}
-		event.reply("```js\n"+builder+"```");
+		event.reply("```js\n"+builder+"```").ephemeral().finish();
 	}
 
-	@SlashCommand(value = "version", desc = "Tells you the current version of the java port of dmPing currently being used.", ephemeral = true)
-	public void onVersion(CommandEvent event) {
-		event.reply(Main.config.get("version")+(Main.config.get("beta", Boolean.class)?"-beta":""));
+	@Command(name = "version", help = "Tells you the current version of the java port of dmPing currently being used.")
+	public static void onVersion(GenericCommandEvent event) {
+		event.reply(Main.config.get("version")+(Main.config.get("beta", Boolean.class)?"-beta":"")).ephemeral().finish();
 	}
 
-	@SlashCommand(value = "source", desc = "Sends you the github to view the code of the bot.", ephemeral = true)
-	public void onSource(CommandEvent event) {
-		event.reply("https://github.com/Scyye/dmPing");
+	@Command(name = "source", help = "Sends you the github to view the code of the bot.")
+	public static void onSource(GenericCommandEvent event) {
+		event.reply("https://github.com/Scyye/dmPing").ephemeral().finish();
 	}
 
-	@SlashCommand(value = "github", desc = "Sends you the github to view the code of the bot.", ephemeral = true)
-	public void onGithub(CommandEvent event) {
+	@Command(name = "github", help = "Sends you the github to view the code of the bot.")
+	public static void onGithub(GenericCommandEvent event) {
 		onSource(event);
 	}
 
-	@SlashCommand(value = "say", desc = "Says something as the bot", ephemeral = true)
-	public void onSay(CommandEvent event, @Param("message") String message) {
-		event.getMessageChannel().sendMessage(message).queue();
-		event.reply("Sent message:\n"+message);
+	@Command(name = "say", help = "Says something as the bot")
+	public static void onSay(GenericCommandEvent event, @Param(description = "message") String message) {
+		event.getChannel().sendMessage(message).queue();
+		event.reply("Sent message:\n"+message).ephemeral().finish();
 	}
 
-	@SlashCommand(value = "crazy", desc = "CRAZY")
-	public void onCrazy(CommandEvent event) {
-		event.reply("Crazy? I was crazy once, they locked me in a room, a rubber room with rats, rats drive me crazy!");
+	@Command(name = "crazy", help = "CRAZY")
+	public static void onCrazy(GenericCommandEvent event) {
+		event.reply("Crazy? I was crazy once, they locked me in a room, a rubber room with rats, rats drive me crazy!").finish();
 	}
 
-	@SlashCommand(value = "rats", desc = "CRAZY")
-	public void onRats(CommandEvent event) {
+	@Command(name = "rats", help = "CRAZY")
+	public static void onRats(GenericCommandEvent event) {
 		onCrazy(event);
 	}
 
-	@SlashCommand(value = "changelog", desc = "View the entire history of the bot, with all updates and everything!", ephemeral = true)
-	public void onChangeLog(CommandEvent event) {
+	@Command(name = "changelog", help = "View the entire history of the bot, with all updates and everything!")
+	public static void onChangeLog(GenericCommandEvent event) {
 		EmbedBuilder builder = new EmbedBuilder();
 		builder
 				.addField("1.0.0", "Added all functionality from root's dmPing bot (do /original-js to view the original code for dmPing by Tessy)", false)
@@ -97,6 +96,7 @@ public class CommandManager {
 				.addField("5.4.3", "Updated JDA, added custom status, cleaned code a bit, deprecated stuff", false)
 				.addField("5.4.4", "Make dmping function - no antidelete currently, removed blacklist.", true)
 				.addField("5.4.5", "Readd anti-delete, make pinging work with media, updated dependencies.", true)
+				.addField("6.0.0", "Moved to BotCommons for commands; Fixed antidelete and other issues", false)
 		;
 
 		builder
@@ -104,10 +104,9 @@ public class CommandManager {
 				.setColor(Color.BLUE)
 				.setTitle("**Changelog**");
 
-		Main.instance.jda.retrieveUserById(Main.config.get("ownerId", String.class)).queue(user -> {
-			builder.setThumbnail(user.getAvatarUrl());
-		});
+		Main.instance.jda.retrieveUserById(Main.config.get("owner-id", String.class)).queue(user ->
+				builder.setThumbnail(user.getAvatarUrl()));
 
-		event.reply(builder);
+		event.replyEmbed(builder).ephemeral().finish();
 	}
 }

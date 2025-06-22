@@ -1,7 +1,7 @@
 package dev.scyye.dmping;
 
+import botcommons.commands.CommandManager;
 import botcommons.config.Config;
-import com.github.kaktushose.jda.commands.JDACommands;
 import dev.scyye.dmping.listeners.*;
 import dev.scyye.dmping.utils.SQLiteUtils;
 import net.dv8tion.jda.api.*;
@@ -55,12 +55,15 @@ public class Main {
 				)
 				.build()
 				.awaitReady();
+
+
+		CommandManager.addCommands(dev.scyye.dmping.commands.CommandManager.class);
+		CommandManager.init(jda);
 	}
 
 	public static void main(String[] args) throws InterruptedException {
 		instance = new Main();
 
-		JDACommands.start(instance.jda, instance.getClass(), "dev.scyye.dmping.commands");
 		SQLiteUtils.init();
 
 		Main.instance.jda.getGuilds().get(0).getSelfMember().modifyNickname

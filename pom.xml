@@ -61,12 +61,6 @@
             <artifactId>gson</artifactId>
             <version>2.13.1</version>
         </dependency>
-        <dependency>
-            <groupId>com.github.kaktushose</groupId>
-            <artifactId>jda-commands</artifactId>
-            <version>4.0.0-beta.1</version>
-        </dependency>
-
         <!-- https://mvnrepository.com/artifact/dev.arbjerg.lavalink/plugin-api -->
         <dependency>
             <groupId>dev.arbjerg.lavalink</groupId>
