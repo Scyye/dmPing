@@ -11,6 +11,7 @@ import java.awt.*;
 import java.io.*;
 
 @CommandHolder
+@SuppressWarnings("unused")
 public class CommandManager {
 
 	@Command(name = "shutdown", help = "Shuts the bot down.")
