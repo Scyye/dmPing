@@ -1,0 +1,9 @@
+{
+  "token": "TOKEN",
+  "guildId": "guildid",
+  "owner-id": "ownerid",
+  "version": "VERSION",
+  "beta": false,
+  "botName": "DMPing",
+  "webhookUrl": "DELETED MESSAGES WEBHOOK URL"
+}

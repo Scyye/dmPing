@@ -11,6 +11,7 @@ import java.awt.*;
 import java.io.*;
 
 @CommandHolder
+@SuppressWarnings("unused")
 public class CommandManager {
 
 	@Command(name = "shutdown", help = "Shuts the bot down.")
@@ -25,6 +26,15 @@ public class CommandManager {
 		event.getJDA().getHttpClient().connectionPool().evictAll();
 		event.getJDA().getHttpClient().dispatcher().executorService().shutdown();
 		event.getJDA().shutdown();
+	}
+
+	@Command(name = "restart", help = "Restarts the bot.")
+	public static void onRestart(GenericCommandEvent event) throws InterruptedException {
+		onShutdown(event);
+
+		if (event.getJDA().awaitShutdown()) {
+			System.exit(2);
+		}
 	}
 
 	@Command(name = "original-js", help = "Displays the original JavaScript version of the bot written by root")
