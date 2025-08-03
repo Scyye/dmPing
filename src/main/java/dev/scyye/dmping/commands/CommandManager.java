@@ -34,7 +34,7 @@ public class CommandManager {
 		onShutdown(event);
 
 		if (event.getJDA().awaitShutdown()) {
-			Main.main(params.split(" "));
+			System.exit(2);
 		}
 	}
 
