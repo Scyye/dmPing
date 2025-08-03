@@ -29,12 +29,11 @@ public class CommandManager {
 	}
 
 	@Command(name = "restart", help = "Restarts the bot.")
-	public static void onRestart(GenericCommandEvent event,
-								 @Param(description = "params") String params) throws InterruptedException {
+	public static void onRestart(GenericCommandEvent event) throws InterruptedException {
 		onShutdown(event);
 
 		if (event.getJDA().awaitShutdown()) {
-			Main.main(params.split(" "));
+			System.exit(2);
 		}
 	}
 
